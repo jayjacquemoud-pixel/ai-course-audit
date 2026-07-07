@@ -1,0 +1,49 @@
+<!--
+  AI Interactive Course Audit™ — host-page resize listener
+
+  This snippet does NOT go in the tool itself — it goes on the marketing page
+  (GHL, WordPress, or Webflow) that embeds the tool in an iframe. Paste it
+  into that page's custom code / embed block, once per page that hosts the
+  iframe.
+
+  What it does: listens for the height the iframe reports via postMessage
+  (fired by the tool on every screen change) and resizes the iframe element
+  to match, so the embed never clips content or leaves empty space.
+
+  Setup:
+  1. Give the iframe an id, e.g.:
+       <iframe id="ai-course-audit-iframe"
+               src="https://YOUR-DEPLOYED-DOMAIN/?utm_source={{utm_source}}&utm_medium={{utm_medium}}&utm_campaign={{utm_campaign}}&utm_content={{utm_content}}"
+               style="width:100%;border:0;" scrolling="no"></iframe>
+     The four utm_* merge tags above are what carry attribution through the
+     iframe boundary — set them in whichever page builder hosts the final
+     page (GHL, WordPress, Webflow all support passing query-string merge
+     tags into an embed URL). If they're left off, every lead loses
+     attribution silently, so don't skip this.
+  2. Update ALLOWED_ORIGIN below to the domain the tool is actually deployed
+     to (e.g. "https://train.lightspeedvt.com"), once known. Left as '*'
+     for now since final hosting isn't confirmed — that's safe for this use
+     case (only a height number crosses the boundary) but should be locked
+     down once the deployment domain is final.
+  3. Paste this whole snippet into the page below the iframe.
+-->
+<script>
+(function () {
+  var IFRAME_ID = 'ai-course-audit-iframe'; // must match the iframe's id above
+  var ALLOWED_ORIGIN = '*'; // tighten to the tool's deployed origin once known
+
+  window.addEventListener('message', function (event) {
+    if (ALLOWED_ORIGIN !== '*' && event.origin !== ALLOWED_ORIGIN) return;
+    var data = event.data;
+    if (!data || data.type !== 'aicourseaudit:resize') return;
+
+    var iframe = document.getElementById(IFRAME_ID);
+    if (!iframe) return;
+
+    var height = data.height;
+    if (typeof height === 'number' && height > 0) {
+      iframe.style.height = height + 'px';
+    }
+  });
+})();
+</script>

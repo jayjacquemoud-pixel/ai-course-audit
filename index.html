@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Interactive Course Audit™ | LightSpeed VT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root{
+    --dark:#212121; --light:#F7FAFD;
+    --light-blue:#2098D0; --light-blue-accent:#EFF6FF;
+    --dark-blue:#12355A; --dark-blue-accent:#EFF3FF;
+    --purple:#A855F7; --purple-dark:#8B36E1;
+    --red:#EF4444; --red-dark:#7F1D1D; --red-light:#FEF2F2;
+    --success:#22C55E; --success-dark:#166534; --success-light:#DCFCE7;
+    --warning:#F59E0B; --warning-dark:#92400E; --warning-light:#FFFBEB;
+    --darker-grey:#5F5F5F; --dark-grey:#A3A3A3; --mid-grey:#E8E8E8; --light-grey:#FAFAFA; --border:#E4E5E9;
+    --font-heading:'Montserrat','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --font-body:'Public Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --btn-radius:9999px;
+    --t-fast:150ms ease; --t-base:250ms ease; --t-slow:400ms ease;
+    --shadow-sm:0 2px 2px -1px rgba(16,18,25,.12);
+    --shadow-md:0 4px 4px -2px rgba(16,18,25,.12);
+    --shadow-lg:0 8px 8px -4px rgba(16,18,25,.12);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--font-body);color:var(--dark);background:var(--light);text-wrap:pretty;}
+  h1,h2,h3,h4{font-family:var(--font-heading);font-weight:700;text-wrap:balance;margin:0;}
+  .container{max-width:840px;margin:0 auto;padding:0 24px;}
+  a{color:inherit;}
+
+  /* NAV */
+  .nav{background:var(--dark-blue);padding:16px 0;}
+  .nav .container{display:flex;align-items:center;}
+  .nav img{height:26px;width:auto;}
+
+  /* SCREENS */
+  .screen{display:none;padding:56px 0 80px;animation:fadeIn .35s ease;}
+  .screen.active{display:block;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  /* HERO */
+  .eyebrow{display:inline-flex;align-items:center;gap:6px;background:var(--dark-blue-accent);color:var(--dark-blue);
+    font-family:var(--font-heading);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+    padding:6px 14px;border-radius:var(--btn-radius);margin-bottom:20px;}
+  .hero h1{font-size:clamp(30px,4vw,44px);line-height:1.12;color:var(--dark-blue);margin-bottom:18px;}
+  .hero p.lead{font-size:18px;line-height:1.55;color:var(--darker-grey);max-width:560px;margin-bottom:32px;}
+  .hero-stats{display:flex;gap:32px;margin:36px 0;flex-wrap:wrap;}
+  .hero-stat .num{font-family:var(--font-heading);font-weight:800;font-size:28px;color:var(--dark-blue);white-space:nowrap;}
+  .hero-stat .lbl{font-size:13px;color:var(--darker-grey);}
+
+  /* BUTTONS */
+  .btn{font-family:var(--font-heading);font-weight:700;font-size:15px;border:none;border-radius:var(--btn-radius);
+    padding:14px 30px;cursor:pointer;transition:transform var(--t-fast),box-shadow var(--t-fast),background var(--t-fast);
+    display:inline-flex;align-items:center;gap:8px;}
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(0);}
+  .btn-primary{background:var(--light-blue);color:#fff;box-shadow:var(--shadow-sm);}
+  .btn-primary:hover{box-shadow:var(--shadow-md);background:#1c86b8;}
+  .btn-primary:disabled{background:var(--mid-grey);color:var(--dark-grey);cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-outline{background:transparent;color:var(--dark-blue);border:1.5px solid var(--border);}
+  .btn-outline:hover{border-color:var(--light-blue);color:var(--light-blue);}
+  .btn-dark{background:var(--dark-blue);color:#fff;}
+  .btn-dark:hover{background:#0d2843;}
+
+  /* PROGRESS */
+  .progress-wrap{margin-bottom:36px;}
+  .progress-track{height:6px;background:var(--mid-grey);border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--light-blue);border-radius:999px;transition:width var(--t-slow);}
+  .progress-label{font-size:13px;color:var(--darker-grey);margin-top:8px;display:flex;justify-content:space-between;}
+
+  /* FORM */
+  .section-title{font-size:24px;color:var(--dark-blue);margin-bottom:6px;}
+  .section-sub{color:var(--darker-grey);font-size:15px;margin-bottom:28px;}
+  .field{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:16px;box-shadow:var(--shadow-sm);}
+  .field label{display:flex;align-items:flex-start;gap:10px;font-family:var(--font-heading);font-weight:700;font-size:15px;color:var(--dark);margin-bottom:14px;line-height:1.4;}
+  .q-num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--dark-blue-accent);color:var(--dark-blue);
+    font-family:var(--font-heading);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .field input[type=text], .field input[type=number], .field select{
+    width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);
+    font-size:15px;background:var(--light-grey);color:var(--dark);transition:border-color var(--t-fast);}
+  .field input:focus, .field select:focus{outline:none;border-color:var(--light-blue);background:#fff;}
+  .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:560px){.option-grid{grid-template-columns:1fr;}}
+  .option-card{border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;font-size:14px;
+    transition:all var(--t-fast);background:var(--light-grey);line-height:1.4;}
+  .option-card:hover{border-color:var(--light-blue);background:#fff;box-shadow:var(--shadow-sm);}
+  .option-card.selected{border-color:var(--light-blue);background:var(--light-blue-accent);color:var(--dark-blue);font-weight:600;box-shadow:var(--shadow-sm);}
+  .check-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:560px){.check-grid{grid-template-columns:1fr;}}
+  .check-card{border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;cursor:pointer;font-size:14px;
+    display:flex;align-items:center;gap:10px;transition:all var(--t-fast);background:var(--light-grey);}
+  .check-card:hover{border-color:var(--light-blue);}
+  .check-card.selected{border-color:var(--success);background:var(--success-light);color:var(--success-dark);font-weight:600;}
+  .check-box{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);flex-shrink:0;display:flex;
+    align-items:center;justify-content:center;}
+  .check-card.selected .check-box{background:var(--success);border-color:var(--success);color:#fff;}
+
+  .nav-buttons{display:flex;justify-content:space-between;margin-top:36px;}
+
+  /* LOADING */
+  .loading-screen{text-align:center;padding:100px 0;}
+  .spinner{width:48px;height:48px;border:4px solid var(--mid-grey);border-top-color:var(--light-blue);
+    border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 28px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-screen p{color:var(--darker-grey);font-size:15px;}
+
+  /* REPORT */
+  .report-header{background:var(--dark-blue);color:var(--light);padding:48px 0 40px;margin-bottom:44px;}
+  .report-header .eyebrow{background:rgba(255,255,255,.12);color:#fff;}
+  .report-header h1{color:#fff;font-size:clamp(26px,3.4vw,34px);margin-bottom:10px;}
+  .report-header .company{color:rgba(247,250,253,.75);font-size:15px;}
+  .score-hero{display:flex;align-items:center;gap:28px;margin-top:28px;flex-wrap:wrap;}
+  .score-circle{width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.08);border:3px solid var(--light-blue);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+  .score-circle .n{font-family:var(--font-heading);font-weight:800;font-size:30px;color:#fff;line-height:1;}
+  .score-circle .g{font-size:12px;color:var(--light-blue);font-weight:700;margin-top:2px;}
+  .score-hero p{color:rgba(247,250,253,.85);font-size:15px;line-height:1.6;max-width:480px;margin:0;}
+
+  .report-section{margin-bottom:48px;}
+  .report-section h2{font-size:20px;color:var(--dark-blue);margin-bottom:20px;}
+
+  .category-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;}
+  @media(max-width:560px){.category-grid{grid-template-columns:1fr;}}
+  .cat-card{border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:#fff;}
+  .cat-card .cat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .cat-card .cat-name{font-family:var(--font-heading);font-weight:700;font-size:13.5px;color:var(--dark);}
+  .cat-card .cat-score{font-family:var(--font-heading);font-weight:800;font-size:15px;white-space:nowrap;}
+  .cat-bar-track{height:6px;background:var(--mid-grey);border-radius:999px;overflow:hidden;}
+  .cat-bar-fill{height:100%;border-radius:999px;}
+
+  .insight-card{border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:16px;background:#fff;}
+  .insight-card .insight-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;flex-wrap:wrap;}
+  .insight-card h3{font-size:17px;color:var(--dark-blue);}
+  .badge-score{font-family:var(--font-heading);font-weight:800;font-size:13px;padding:4px 12px;border-radius:999px;white-space:nowrap;}
+  .insight-card p{margin:0 0 10px;line-height:1.6;font-size:14.5px;color:var(--dark);}
+  .insight-card .lsvt-line{background:var(--dark-blue-accent);border-left:3px solid var(--light-blue);border-radius:0 8px 8px 0;
+    padding:12px 14px;font-size:14px;color:var(--dark-blue);line-height:1.55;margin-top:12px;}
+  .insight-card .lsvt-line b{font-family:var(--font-heading);}
+
+  .roadmap-item{display:flex;gap:18px;border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:14px;background:#fff;}
+  .roadmap-num{font-family:var(--font-heading);font-weight:800;font-size:20px;color:var(--light-blue);flex-shrink:0;width:34px;}
+  .roadmap-item h3{font-size:16.5px;color:var(--dark-blue);margin-bottom:8px;}
+  .roadmap-item p{margin:0 0 10px;font-size:14.5px;line-height:1.6;color:var(--dark);}
+
+  .final-cta{background:var(--dark-blue);border-radius:20px;padding:44px 36px;text-align:center;color:#fff;}
+  .final-cta h2{color:#fff;font-size:24px;margin-bottom:12px;}
+  .final-cta p{color:rgba(247,250,253,.82);font-size:15px;max-width:520px;margin:0 auto 28px;line-height:1.6;}
+  .final-cta .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+  .footer-note{text-align:center;color:var(--dark-grey);font-size:12.5px;margin-top:44px;line-height:1.6;}
+
+  .error-banner{background:var(--warning-light);border:1px solid var(--warning);color:var(--warning-dark);
+    border-radius:10px;padding:14px 18px;font-size:13.5px;margin-bottom:24px;}
+
+  ::-webkit-scrollbar{width:10px;}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important;}}
+</style>
+</head>
+<body>
+
+<div class="nav"><div class="container">
+  <img id="navLogo" alt="LightSpeed VT" src="">
+</div></div>
+
+<!-- Hidden UTM fields — populated on load from the URL query string, carried through
+     to the lead record for GHL field mapping. Never remove these. -->
+<input type="hidden" id="hidden_utm_source" name="utm_source" value="">
+<input type="hidden" id="hidden_utm_medium" name="utm_medium" value="">
+<input type="hidden" id="hidden_utm_campaign" name="utm_campaign" value="">
+<input type="hidden" id="hidden_utm_content" name="utm_content" value="">
+
+<!-- SCREEN 0: INTRO -->
+<div class="screen active" id="screen-intro">
+  <div class="container hero">
+    <span class="eyebrow"><span>AI Interactive Course Audit™</span></span>
+    <h1>See how your training stacks up against today's&nbsp;highest-performing learning experiences.</h1>
+    <p class="lead">Answer a short set of questions about your current course. In a few minutes you'll get a scored, consultant-grade executive report — built for you, on the spot.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">Since 2000</div><div class="lbl">building training tech</div></div>
+      <div class="hero-stat"><div class="num">$1.6B+</div><div class="lbl">in online course sales, last 10 years</div></div>
+    </div>
+
+    <form id="introForm" autocomplete="on" onsubmit="return handleIntroSubmit(event)">
+      <div style="background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px 24px;max-width:480px;margin-bottom:28px;">
+        <div style="font-family:var(--font-heading);font-weight:700;font-size:14px;color:var(--dark-blue);margin-bottom:4px;">
+          Where should we send your report?
+        </div>
+        <div style="font-size:13px;color:var(--darker-grey);margin-bottom:14px;">Enter your details below to begin your audit.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <input type="text" id="lead_name" name="name" autocomplete="name" placeholder="Your name" style="flex:1;min-width:140px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);font-size:14px;">
+          <input type="email" id="lead_email" name="email" autocomplete="email" placeholder="you@company.com" style="flex:1;min-width:180px;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);font-size:14px;">
+        </div>
+        <input type="tel" id="lead_phone" name="tel" autocomplete="tel" placeholder="Phone number" style="width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:var(--font-body);font-size:14px;">
+        <div id="introLeadError" style="display:none;color:var(--red-dark);background:var(--red-light);border:1px solid var(--red);
+          border-radius:8px;padding:8px 12px;font-size:13px;margin-top:10px;"></div>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Start My Free Audit <span data-lucide="arrow-right" style="width:16px;height:16px;"></span></button>
+    </form>
+  </div>
+</div>
+
+<!-- SCREEN 1..N: FORM (rendered by JS) -->
+<div class="screen" id="screen-form">
+  <div class="container">
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
+      <div class="progress-label"><span id="progressText">Section 1 of 8</span><span id="progressPct">0%</span></div>
+    </div>
+    <div id="formSectionBody"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-outline" id="backBtn" onclick="prevSection()">Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextSection()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: LOADING -->
+<div class="screen" id="screen-loading">
+  <div class="container loading-screen">
+    <div class="spinner"></div>
+    <h3 style="color:var(--dark-blue);margin-bottom:10px;">Building your Executive Audit…</h3>
+    <p id="loadingMsg">Scoring your responses against the interactive-learning benchmark.</p>
+  </div>
+</div>
+
+<!-- SCREEN: REPORT -->
+<div class="screen" id="screen-report">
+  <div class="report-header"><div class="container">
+    <span class="eyebrow">Executive Audit Report</span>
+    <h1 id="reportTitle">Your AI Interactive Course Audit™</h1>
+    <div class="company" id="reportCompanyLine"></div>
+    <div class="score-hero">
+      <div class="score-circle"><div class="n" id="overallScoreNum">--</div><div class="g" id="overallGradeLbl">--</div></div>
+      <p id="execSummaryText">Generating your executive summary…</p>
+    </div>
+  </div></div>
+
+  <div class="container">
+    <div id="errorBanner" style="display:none;" class="error-banner"></div>
+
+    <div class="report-section">
+      <h2>Score Categories</h2>
+      <div class="category-grid" id="categoryGrid"></div>
+    </div>
+
+    <div class="report-section">
+      <h2>Category Analysis</h2>
+      <div id="insightList"></div>
+    </div>
+
+    <div class="report-section">
+      <h2>Prioritized Recommendations</h2>
+      <div id="roadmapList"></div>
+    </div>
+
+    <div class="report-section">
+      <h2>Why LightSpeed VT</h2>
+      <p style="color:var(--darker-grey);font-size:14.5px;margin-bottom:20px;max-width:600px;">
+        The assessment above is based only on your answers. Separately — and transparently — here's what LightSpeed VT
+        actually does, including capabilities that exist nowhere else in the category.
+      </p>
+      <div class="category-grid" id="featureGrid" style="grid-template-columns:1fr 1fr;"></div>
+    </div>
+
+    <div class="report-section">
+      <div class="final-cta">
+        <h2>Your content is already valuable.<br>Let's change how it's delivered.</h2>
+        <p id="finalRecText">LightSpeed VT is the only platform built to close every gap in this report — inside one system.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="https://instant.lightspeedvt.com/talk-to-us" target="_blank">Book a 15-Minute Demo</a>
+          <a class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.4);" href="https://instant.lightspeedvt.com/get-my-system" target="_blank">Get My System</a>
+        </div>
+        <p style="color:rgba(247,250,253,.65);font-size:12.5px;margin-top:20px;margin-bottom:0;">
+          Starts at $399/mo (or $3/user, whichever is greater) — fully self-serve, backed by LightSpeed VT's
+          <a href="https://support.lightspeedvt.com/" target="_blank" style="color:rgba(247,250,253,.85);text-decoration:underline;">comprehensive support site</a>.
+          Want it done for you instead? White Glove Rollout and Course Credits (1 credit = 1 fully built course) are optional add-on services available during onboarding.
+        </p>
+      </div>
+    </div>
+
+    <p class="footer-note">This audit was generated live using AI based on your responses. Scores are directional and intended to highlight opportunity areas, not to serve as a formal instructional design assessment.</p>
+  </div>
+</div>
+
+<script>
+// Guarded: if the unpkg.com CDN is blocked (ad blockers, restrictive CSP,
+// offline) this must not throw and take down the rest of the script below —
+// icons are cosmetic, the quiz functioning is not.
+function safeCreateIcons(){
+  try{ if(window.lucide) lucide.createIcons(); }catch(e){ console.warn('lucide icons unavailable:', e); }
+}
+safeCreateIcons();
+
+/* ---------- UTM CAPTURE ----------
+   Captures utm_source / utm_medium / utm_campaign / utm_content from the URL
+   query string on load and holds them as hidden fields. These ride along with
+   every lead record and are what the GHL webhook (built in Claude Code) will
+   map to matching custom fields on the GHL contact record. If this page is
+   ever embedded via iframe on a GHL funnel page, make sure the iframe URL
+   itself carries the UTM string (GHL passes UTMs through to iframe src when
+   using {{utm_source}} etc. merge tags in the embed URL), otherwise these
+   will be blank inside the iframe. ------------------------------------------------------------------------------ */
+function getUTMParams(){
+  const params = new URLSearchParams(window.location.search);
+  return {
+    utm_source: params.get('utm_source') || '',
+    utm_medium: params.get('utm_medium') || '',
+    utm_campaign: params.get('utm_campaign') || '',
+    utm_content: params.get('utm_content') || ''
+  };
+}
+const utmParams = getUTMParams();
+['utm_source','utm_medium','utm_campaign','utm_content'].forEach(key=>{
+  const el = document.getElementById('hidden_'+key);
+  if(el) el.value = utmParams[key];
+});
+
+/* ---------- IFRAME AUTO-RESIZE ----------
+   This tool is embedded via iframe on GHL/WordPress/Webflow pages (see
+   embed/host-listener-snippet.html for the matching host-page listener).
+   Screens vary wildly in height (3-field intro vs. an 8-question section vs.
+   the full report), so a fixed iframe height doesn't work. On every relevant
+   change we postMessage our current height to the parent window, which the
+   host listener uses to resize the iframe element. targetOrigin is '*'
+   because the embedding domain (GHL/WordPress/Webflow page) isn't known
+   ahead of time and the message payload carries nothing sensitive. -------- */
+function postHeightToParent(){
+  if(window.parent === window) return; // not embedded, nothing to do
+  const height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+  window.parent.postMessage({ type:'aicourseaudit:resize', height }, '*');
+}
+function scheduleHeightUpdate(){
+  postHeightToParent();
+  // fonts/icons can shift layout slightly after the initial paint
+  setTimeout(postHeightToParent, 150);
+  setTimeout(postHeightToParent, 500);
+}
+window.addEventListener('load', scheduleHeightUpdate);
+if('ResizeObserver' in window){
+  new ResizeObserver(postHeightToParent).observe(document.body);
+} else {
+  window.addEventListener('resize', postHeightToParent);
+}
+
+/* ---------- LOGO ---------- */
+fetch('logo_dark.txt').catch(()=>{});
+const LSVT_FEATURES = [
+  { icon:'video', title:'Interactive Studio', desc:'Turns regular video into truly interactive experiences, with complete tracking and reporting on what learners do inside them — exclusive to LightSpeed VT.' },
+  { icon:'sparkles', title:'AI Courseware Wizard', desc:'Upload existing source material and instantly generate structured course outlines and video scripts.' },
+  { icon:'message-circle', title:'AI Tutor', desc:"An on-demand study partner that answers learners' questions, explains concepts, and guides them to the right training." },
+  { icon:'user-circle', title:'AI Avatars', desc:'Every course includes a professional Library Avatar presenter — or go further with a Personal Avatar trained on your own voice and likeness, no camera required.' },
+  { icon:'drama', title:'AI Roleplay', desc:'Realistic audio/video practice scenarios for sales, service, or leadership training, with feedback built in.' },
+  { icon:'building-2', title:'Multi Private Label Environment', desc:'Run unlimited sub-private-labeled systems — license and rebrand your own course for other companies to sell as their own, turning it into a full B2B offering.' },
+  { icon:'bar-chart-3', title:'AI Insights & Deep Reporting', desc:'Ask questions about your training data in plain English, backed by dozens of reports and dashboards.' },
+  { icon:'shopping-cart', title:'Built-In Monetization Tools', desc:'One-click upsell triggers, subscription management, and direct-to-Stripe checkout built into the platform.' },
+  { icon:'award', title:'Track Record', desc:'Building training technology since 2000, with over $1.6 billion in online course sales in the last 10 years.' }
+];
+
+function renderFeatureGrid(){
+  const grid = document.getElementById('featureGrid');
+  if(!grid) return;
+  grid.innerHTML = LSVT_FEATURES.map(f=>`
+    <div class="cat-card" style="display:flex;gap:12px;align-items:flex-start;">
+      <span data-lucide="${f.icon}" style="width:20px;height:20px;color:var(--light-blue);flex-shrink:0;margin-top:2px;"></span>
+      <div>
+        <div class="cat-name" style="margin-bottom:4px;">${f.title}</div>
+        <div style="font-size:13px;color:var(--darker-grey);line-height:1.5;">${f.desc}</div>
+      </div>
+    </div>`).join('');
+  safeCreateIcons();
+}
+const LOGO_DARK_B64 = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMzAuMi4xLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogOS4wMyBCdWlsZCAwKSAgLS0+CjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiCgkgdmlld0JveD0iMCAwIDcyMCAxMjYiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDcyMCAxMjY7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGcgaWQ9ImxvZ28iPgoJPHBhdGggaWQ9InRhZ2xpbmUiIHN0eWxlPSJmaWxsOiNGRkZGRkY7IiBkPSJNMTM2LjU0Nyw4Mi4wNzJoNS42bC0yLjgyMywxMy4yOTdoLTUuNkwxMzYuNTQ3LDgyLjA3MnogTTE0NC4wNTMsODIuMDcyaDguMTk1CgkJbDIuNTc4LDguOTE0aDAuMDU1bDEuODkzLTguOTE0aDQuODY1bC0yLjgyOCwxMy4yOTdoLTcuOTM3bC0yLjczOS05LjQ2N2gtMC4wMzhsLTIuMDEyLDkuNDY3aC00Ljg2MUwxNDQuMDUzLDgyLjA3MnoKCQkgTTE2Ny4yMTgsODUuMzE0aC00LjM2NmwwLjY4OS0zLjI0MmgxNC4zMjhsLTAuNjg5LDMuMjQyaC00LjM2MmwtMi4xMzksMTAuMDU1aC01LjZMMTY3LjIxOCw4NS4zMTR6IE0xNzkuNzc1LDgyLjA3MmgxMi43NDMKCQlsLTAuNTk2LDIuNzk4aC03LjMyOWwtMC41MiwyLjQ0OWg2Ljg2OGwtMC41OTYsMi44aC02Ljg2OGwtMC41MiwyLjQ0OWg3LjQwNWwtMC41OTYsMi44aC0xMi44MTlMMTc5Ljc3NSw4Mi4wNzJ6IE0xOTkuNDUsODQuNzYKCQloMi4wNDZjMS4zNjEsMCwyLjEyMiwwLjQwNiwxLjg3MiwxLjU4NWMtMC4yNjYsMS4yNTEtMS4yNjgsMS42MTktMi40NjQsMS42MTloLTIuMTM0TDE5OS40NSw4NC43NnogTTE5MS41OTcsOTUuMzY4aDUuNTk2CgkJbDEuMDI3LTQuODI3aDEuNjk1YzEuOTE0LDAsMi4xMDksMC4yMjIsMi4wMTYsMS44NmwtMC4xNjksMi45NjdoNS42bDAuMjI4LTQuNDU5YzAuMDYzLTEuMzQ0LTAuOTA0LTEuODA1LTIuMTg1LTEuODQxbDAuMDM4LTAuMTg0CgkJYzEuNzItMC4yOTYsMy4xNy0xLjM5OSwzLjU0Mi0zLjE0OWMwLjYyNS0yLjk0OC0xLjQ3MS0zLjY2NC01LjA5Ny0zLjY2NGgtOS40NjdMMTkxLjU5Nyw5NS4zNjh6IE0yMTcuMTA4LDkwLjI0OGwzLjE0NC00LjY0MwoJCWwxLjA3NCw0LjY0M0gyMTcuMTA4eiBNMjA4LjE2MSw5NS4zNjhoNS40ODZsMS41LTIuMjFoNi44NjhsMC41MDcsMi4yMWg2LjE3MWwtMy45NTItMTMuMjk3aC02Ljk3OEwyMDguMTYxLDk1LjM2OHoKCQkgTTI0MS4wODksODcuMDA2YzAuMjAzLTEuNjQtMC4zNDItMi4zNzctMS44NTEtMi4zNzdjLTIuMTc3LDAtMy4zMDksMS44ODEtMy43NzksNC4wOTFjLTAuNDY5LDIuMjA2LTAuMTM1LDQuMDg3LDIuMDM3LDQuMDg3CgkJYzEuNjk1LDAsMi42OTItMC43OTMsMy4xMTEtMi41MDZoNS43MWMtMC4yODcsMS4yLTAuNjYzLDIuMzU4LTEuOTEsMy4zNTRjLTEuNzk2LDEuNDM1LTQuNTQ0LDIuMDYyLTcuMzk2LDIuMDYyCgkJYy02LjY2NSwwLTguMjc1LTIuNzQ1LTcuMzcxLTYuOTk3YzAuNjY4LTMuMTUxLDIuOTA0LTYuOTk5LDEwLjM0Ni02Ljk5OWMzLjMzMSwwLDUuNTIsMC42MjYsNi40NDYsMS43MzEKCQljMC42NTksMC43OTIsMC43NjUsMS42MDIsMC4zNjgsMy41NTVMMjQxLjA4OSw4Ny4wMDZMMjQxLjA4OSw4Ny4wMDZ6IE0yNTIuNjc0LDg1LjMxNGgtNC4zNjZsMC42ODktMy4yNDJoMTQuMzI4bC0wLjY4OSwzLjI0MgoJCWgtNC4zNjZsLTIuMTM1LDEwLjA1NWgtNS42TDI1Mi42NzQsODUuMzE0eiBNMjY1LjIyNyw4Mi4wNzJoNS42TDI2OCw5NS4zNjhoLTUuNTk2TDI2NS4yMjcsODIuMDcyeiBNMjcxLjk2NCw4Mi4wNzJoNi4xNzEKCQlsMS41Myw4LjM5OGw1LjE5LTguMzk4aDUuNzFsLTguNzAyLDEzLjI5N2gtNi44NTFMMjcxLjk2NCw4Mi4wNzJ6IE0yOTEuNzAyLDgyLjA3MmgxMi43NDNsLTAuNTk2LDIuNzk4aC03LjMyOUwyOTYsODcuMzE5aDYuODY4CgkJbC0wLjU5NiwyLjhoLTYuODY4bC0wLjUyLDIuNDQ5aDcuNDAxbC0wLjU5MiwyLjhoLTEyLjgxOUwyOTEuNzAyLDgyLjA3MnogTTMxNC4zNjksODIuMDcyaDYuMTcxbDEuNTMsOC4zOThsNS4xOTQtOC4zOThoNS43MDYKCQlsLTguNzAyLDEzLjI5N2gtNi44NDdMMzE0LjM2OSw4Mi4wNzJ6IE0zMzQuMTA2LDgyLjA3Mmg1LjZsLTIuODI4LDEzLjI5N2gtNS41OTZMMzM0LjEwNiw4Mi4wNzJ6IE0zNDYuNjM4LDg0Ljc2aDIuMDQ2CgkJYzEuMzYxLDAsMi4xMjIsMC40MDYsMS44NzIsMS41ODVjLTAuMjY2LDEuMjUxLTEuMjY4LDEuNjE5LTIuNDY0LDEuNjE5aC0yLjEzNUwzNDYuNjM4LDg0Ljc2eiBNMzM4Ljc4NSw5NS4zNjhoNS41OTZsMS4wMjctNC44MjcKCQloMS42OTVjMS45MTUsMCwyLjEwNSwwLjIyMiwyLjAxNiwxLjg2bC0wLjE2OSwyLjk2N2g1LjZsMC4yMjgtNC40NTljMC4wNjMtMS4zNDQtMC45MDUtMS44MDUtMi4xODktMS44NDFsMC4wNDItMC4xODQKCQljMS43Mi0wLjI5NiwzLjE3LTEuMzk5LDMuNTQyLTMuMTQ5YzAuNjI2LTIuOTQ4LTEuNDY3LTMuNjY0LTUuMDk3LTMuNjY0aC05LjQ2N0wzMzguNzg1LDk1LjM2OHogTTM2MS43MzUsODUuMzE0aC00LjM2MgoJCWwwLjY4OS0zLjI0MmgxNC4zMjhsLTAuNjg5LDMuMjQyaC00LjM2NmwtMi4xMzgsMTAuMDU1aC01LjU5NkwzNjEuNzM1LDg1LjMxNHogTTM3NC4yOTIsODIuMDcyaDUuNDE0bC0xLjU1MSw3LjI5MQoJCWMtMC41NDEsMi41NDIsMC4xNzgsMy4zMzUsMS44NzIsMy4zMzVzMi43NDctMC43OTIsMy4yODQtMy4zMzVsMS41NTEtNy4yOTFoNS4zMDRsLTEuNjUyLDcuNzcKCQljLTAuNDQ0LDIuMDk5LTEuMDQsMi45ODItMi4wOTYsMy44ODZjLTEuNjQsMS4zOTktNC4wODcsMS45ODktNy4wODgsMS45ODlzLTUuMTk5LTAuNTktNi4yNDctMS45ODkKCQljLTAuNjcyLTAuOTA0LTAuODg4LTEuNzg4LTAuNDQ0LTMuODg2TDM3NC4yOTIsODIuMDcyeiBNMzk2LjM4LDkwLjI0OGwzLjE0LTQuNjQzbDEuMDc4LDQuNjQzSDM5Ni4zOHogTTM4Ny40MjgsOTUuMzY4aDUuNDg2CgkJbDEuNS0yLjIxaDYuODcybDAuNTA3LDIuMjFoNi4xNjZsLTMuOTUyLTEzLjI5N2gtNi45NzhMMzg3LjQyOCw5NS4zNjh6IE00MTEuOTI1LDgyLjA3Mmg1LjU5NmwtMi4xMzUsMTAuMDU1aDYuMTMzbC0wLjY4OSwzLjI0MgoJCWgtMTEuNzMzTDQxMS45MjUsODIuMDcyeiBNNDM0LjczNSw4NS4zMTRoLTQuMzY2bDAuNjg5LTMuMjQyaDE0LjMyOGwtMC42ODksMy4yNDJoLTQuMzY2bC0yLjEzOSwxMC4wNTVoLTUuNTk2TDQzNC43MzUsODUuMzE0egoJCSBNNDUyLjMxOCw4NC43NmgyLjA0MmMxLjM2NSwwLDIuMTI2LDAuNDA2LDEuODcyLDEuNTg1Yy0wLjI2NiwxLjI1MS0xLjI2NCwxLjYxOS0yLjQ2LDEuNjE5aC0yLjEzOUw0NTIuMzE4LDg0Ljc2egoJCSBNNDQ0LjQ2MSw5NS4zNjhoNS42bDEuMDI3LTQuODI3aDEuNjk1YzEuOTE0LDAsMi4xMDUsMC4yMjIsMi4wMTYsMS44NmwtMC4xNjksMi45NjdoNS41OTZsMC4yMzMtNC40NTkKCQljMC4wNjMtMS4zNDQtMC45MDUtMS44MDUtMi4xOS0xLjg0MWwwLjAzOC0wLjE4NGMxLjcyLTAuMjk2LDMuMTc0LTEuMzk5LDMuNTQ2LTMuMTQ5YzAuNjI1LTIuOTQ4LTEuNDcxLTMuNjY0LTUuMDk3LTMuNjY0aC05LjQ2NwoJCUw0NDQuNDYxLDk1LjM2OHogTTQ2OS4xNzcsOTAuMjQ4bDMuMTQ1LTQuNjQzbDEuMDc0LDQuNjQzSDQ2OS4xNzd6IE00NjAuMjI1LDk1LjM2OGg1LjQ5bDEuNS0yLjIxaDYuODY4bDAuNTA3LDIuMjFoNi4xNzEKCQlsLTMuOTUyLTEzLjI5N2gtNi45NzhMNDYwLjIyNSw5NS4zNjh6IE00ODQuNjA0LDgyLjA3Mmg1LjU5NmwtMi44MjcsMTMuMjk3aC01LjU5Nkw0ODQuNjA0LDgyLjA3MnogTTQ5Mi4xMDYsODIuMDcyaDguMTk1CgkJbDIuNTc4LDguOTE0aDAuMDU1bDEuODk4LTguOTE0aDQuODYxbC0yLjgyNywxMy4yOTdoLTcuOTM3bC0yLjczOS05LjQ2N2gtMC4wMzhsLTIuMDEyLDkuNDY3aC00Ljg2MUw0OTIuMTA2LDgyLjA3MnoKCQkgTTUxMS41OTQsODIuMDcyaDUuNmwtMi44MjcsMTMuMjk3aC01LjU5Nkw1MTEuNTk0LDgyLjA3MnogTTUxOS4wOTYsODIuMDcyaDguMTk1bDIuNTgzLDguOTE0aDAuMDU1bDEuODkzLTguOTE0aDQuODY1CgkJbC0yLjgyNywxMy4yOTdoLTcuOTM4bC0yLjczOS05LjQ2N2gtMC4wMzhsLTIuMDEyLDkuNDY3aC00Ljg2TDUxOS4wOTYsODIuMDcyeiBNNTQ4LjkyNyw4Ni4xMjFjMC0wLjM0OS0wLjEzNS0wLjc1NC0wLjQ3My0xLjA2NwoJCWMtMC4zMzgtMC4zMTUtMC45LTAuNTM1LTEuNzg0LTAuNTM1Yy0yLjM5MiwwLTQuMDYyLDEuNjAyLTQuNTY5LDMuOTk4Yy0wLjU0NSwyLjU2MSwwLjI0MSw0LjQsMy4wMjIsNC40CgkJYzEuMjE3LDAsMi4xNDMtMC4xODYsMi42OTYtMC40NjFsMC40MzEtMi4wMjRoLTMuMjQybDAuNTk2LTIuOGg4LjgzOGwtMS40ODgsNy4wMThjLTIuNzQ3LDAuNjA3LTYuMzA2LDEuMDY3LTkuMjM1LDEuMDY3CgkJYy02LjY4NiwwLTguMTI3LTIuOTEtNy4yOTUtNi44MzJjMS4wNjEtNC45OTIsNS4wMzgtNy4xNjQsMTAuODk2LTcuMTY0YzQuODI2LDAsOC4wNjQsMS4wNDgsNy40NDMsNC40CgkJQzU1NC43NjMsODYuMTIxLDU0OC45MjcsODYuMTIxLDU0OC45MjcsODYuMTIxeiBNNTcwLjA2NCw5MS4wOTVjLTAuMTM5LDAuNzM2LTAuMTA2LDEuMjY4LDAuMTY5LDEuNjE5CgkJYzAuMjk2LDAuMzUxLDAuNzU3LDAuNTM3LDEuNDkyLDAuNTM3YzEuMTU4LDAsMi40NzMtMC4yNzksMi42OTctMS4zNDZjMC4wNTEtMC4yMzksMC0wLjQ0Mi0wLjExLTAuNjA3CgkJYy0wLjU3NS0wLjg0Ny02Ljc5Ni0xLjQ3NS04LjI0Ni0zLjA0MWMtMC41ODgtMC42MjUtMC42MDktMS41NjQtMC40NDgtMi4zMThjMC42MTctMi45MSwzLjU2Ny00LjIxOCw4Ljg4OC00LjIxOAoJCWM1LjY1NSwwLDcuMDMzLDEuNTY2LDYuNTI2LDQuMzA5aC01LjQ5YzAuMTE4LTAuNzM3LTAuMDIxLTEuMTk4LTAuMzY4LTEuNDczYy0wLjMyNS0wLjI3NS0wLjg2Mi0wLjM2OC0xLjU2LTAuMzY4CgkJYy0xLjE3OSwwLTEuOTAyLDAuNDQtMi4wNDYsMS4xMjRjLTAuMDQyLDAuMjAxLTAuMDIxLDAuNDU5LDAuMTEsMC42MDRjMC42OTMsMC44MjgsNi43MTYsMS40Miw4LjE0OSwzLjAwMwoJCWMwLjQxOCwwLjQ2MywwLjc5OSwxLjE3OSwwLjUyNCwyLjQ2OGMtMC41NTgsMi42MzMtMy4yNDIsNC4zMjgtOS4yOTgsNC4zMjhjLTcuMjE5LDAtNy4xMDktMi4xNTYtNi42OTktNC42MjJMNTcwLjA2NCw5MS4wOTUKCQlMNTcwLjA2NCw5MS4wOTV6IE01ODYuMzgzLDkxLjM4OWwtNC41MzktOS4zMTdoNi45NzhsMS41OTgsNS40ODZsNC4wOTYtNS40ODZoNS45NjRsLTguNDk5LDkuMzE3bC0wLjg0NSwzLjk3OWgtNS41OTYKCQlMNTg2LjM4Myw5MS4zODl6IE02MDQuMTM0LDkxLjA5NWMtMC4xNCwwLjczNi0wLjEwNiwxLjI2OCwwLjE2OSwxLjYxOWMwLjI5NiwwLjM1MSwwLjc1MiwwLjUzNywxLjQ5MiwwLjUzNwoJCWMxLjE1OCwwLDIuNDY4LTAuMjc5LDIuNjk2LTEuMzQ2YzAuMDUxLTAuMjM5LDAuMDA0LTAuNDQyLTAuMTEtMC42MDdjLTAuNTc1LTAuODQ3LTYuNzk2LTEuNDc1LTguMjUtMy4wNDEKCQljLTAuNTgzLTAuNjI1LTAuNjA0LTEuNTY0LTAuNDQ0LTIuMzE4YzAuNjE3LTIuOTEsMy41NjctNC4yMTgsOC44ODgtNC4yMThjNS42NTUsMCw3LjAzMywxLjU2Niw2LjUyNiw0LjMwOWgtNS40OQoJCWMwLjExOC0wLjczNy0wLjAyMS0xLjE5OC0wLjM2OC0xLjQ3M2MtMC4zMy0wLjI3NS0wLjg2Mi0wLjM2OC0xLjU2LTAuMzY4Yy0xLjE3OSwwLTEuOTAyLDAuNDQtMi4wNDYsMS4xMjQKCQljLTAuMDQyLDAuMjAxLTAuMDI1LDAuNDU5LDAuMTEsMC42MDRjMC42ODksMC44MjgsNi43MTYsMS40Miw4LjE0OSwzLjAwM2MwLjQxOSwwLjQ2MywwLjc5OSwxLjE3OSwwLjUyNCwyLjQ2OAoJCWMtMC41NTgsMi42MzMtMy4yNDIsNC4zMjgtOS4yOTgsNC4zMjhjLTcuMjE5LDAtNy4xMTMtMi4xNTYtNi42OTktNC42MjJMNjA0LjEzNCw5MS4wOTVMNjA0LjEzNCw5MS4wOTV6IE02MjAuNjc2LDg1LjMxNGgtNC4zNjYKCQlsMC42ODktMy4yNDJoMTQuMzI4bC0wLjY4OSwzLjI0MmgtNC4zNjZsLTIuMTM5LDEwLjA1NWgtNS41OTZMNjIwLjY3Niw4NS4zMTR6IE02MzMuMjI5LDgyLjA3MmgxMi43NDNsLTAuNTkyLDIuNzk4aC03LjMyOQoJCWwtMC41MjQsMi40NDloNi44NzJsLTAuNTk2LDIuOGgtNi44NjhsLTAuNTIsMi40NDloNy40MDFsLTAuNTk2LDIuOGgtMTIuODE1TDYzMy4yMjksODIuMDcyeiBNNjQ3Ljg3OCw4Mi4wNzJoOC40OTFsMC44ODcsOC45MTQKCQloMC4wMzRsNC41ODYtOC45MTRoOC41MjVsLTIuODIzLDEzLjI5N2gtNS4xOTRsMi4xMjYtMTAuMDAyaC0wLjAzOGwtNS43NjksMTAuMDAyaC01LjQxOGwtMS4yOTgtMTAuMDAyaC0wLjA1NWwtMi4xMjYsMTAuMDAyCgkJaC00Ljc1MUw2NDcuODc4LDgyLjA3MnoiLz4KCTxwYXRoIGlkPSJpY29uLW5hbWUiIHN0eWxlPSJmaWxsOiMyMDk4RDA7IiBkPSJNMTQ2LjA3MywzNS41ODFoMTUuNjQybC01Ljk2OCwyNy45OWgyMC4xNjlsLTEuOTI3LDkuMDIxaC0zNS44MDdMMTQ2LjA3MywzNS41ODF6CgkJIE0zNjYuMzA0LDYwLjcwMWMtMC4zODUsMi4wNS0wLjI4NywzLjUzMSwwLjQ4Miw0LjUxMWMwLjgyLDAuOTcsMi4xMDEsMS40ODQsNC4xNTksMS40ODRjMy4yNDIsMCw2LjkwMi0wLjc2Nyw3LjUzNi0zLjc0MgoJCWMwLjE0NC0wLjY2OCwwLjAwOC0xLjIzLTAuMzA4LTEuNjljLTEuNjAyLTIuMzYtMTguOTg2LTQuMS0yMy4wNDMtOC40NjJjLTEuNjM2LTEuNzM5LTEuNjk1LTQuMzUzLTEuMjQ3LTYuNDU2CgkJYzEuNzI0LTguMDk2LDkuOTYyLTExLjczNSwyNC44MzEtMTEuNzM1YzE1Ljc5OCwwLDE5LjY1Myw0LjM1NSwxOC4yMjksMTEuOTkxaC0xNS4zMzRjMC4zMzQtMi4wNS0wLjA1OS0zLjMzMS0xLjAyNy00LjEKCQljLTAuOTEzLTAuNzY5LTIuNDA1LTEuMDI1LTQuMzU3LTEuMDI1Yy0zLjI5NywwLTUuMzA5LDEuMjMtNS43MTQsMy4xMjZjLTAuMTE4LDAuNTY0LTAuMDYzLDEuMjgxLDAuMzEzLDEuNjkKCQljMS45MjMsMi4zMSwxOC43NTcsMy45NDgsMjIuNzYsOC4zNmMxLjE2MiwxLjI3OCwyLjIyNywzLjI3OCwxLjQ2Miw2Ljg2OGMtMS41Niw3LjMyOC05LjA1MywxMi4wNDMtMjUuOTc2LDEyLjA0MwoJCWMtMjAuMTczLDAtMTkuODY5LTUuOTk1LTE4LjcxMS0xMi44NjJoMTUuOTQ1TDM2Ni4zMDQsNjAuNzAxTDM2Ni4zMDQsNjAuNzAxeiBNNDE3LjUsNDMuMzczaDQuNzM4CgkJYzQuNDc2LDAsNS42NzYsMS41ODksNS4wMjEsNC42NjhjLTAuNzc0LDMuNjM3LTMuMDQzLDQuODY3LTguNjAxLDQuODY3aC0zLjE5MUw0MTcuNSw0My4zNzN6IE0zOTUuNjI4LDcyLjU5MmgxNS42NDJsMi41MzYtMTEuODkKCQloMTIuMjQ0YzcuODE5LDAsMTQuNTMxLTMuMjI5LDE2LjQ1NC0xMi4yNTNjMi4wNTgtOS42MzYtMy41MjktMTIuODY4LTEyLjQ4MS0xMi44NjhoLTI2LjQ5NkwzOTUuNjI4LDcyLjU5MnogTTQ0OC4xNzYsMzUuNTgxCgkJaDM1LjYwOGwtMS42NjUsNy43OTJoLTIwLjQ3N2wtMS40NTQsNi44MTdoMTkuMTg4bC0xLjY2MSw3Ljc5MmgtMTkuMTkzbC0xLjQ1LDYuODJoMjAuNjhsLTEuNjYxLDcuNzkxSDQ0MC4yOEw0NDguMTc2LDM1LjU4MXoKCQkgTTQ4OS4xNTIsMzUuNTgxaDM1LjYwNGwtMS42NjEsNy43OTJoLTIwLjQ3N2wtMS40NTQsNi44MTdoMTkuMTkzbC0xLjY2NSw3Ljc5MmgtMTkuMTkzbC0xLjQ1LDYuODJoMjAuNjhsLTEuNjYxLDcuNzkxaC0zNS44MTEKCQlMNDg5LjE1MiwzNS41ODF6IE01NDMuOTc0LDQzLjk5aDQuMzJjNy4xLDAsMTAuNjkzLDMuMTc4LDkuMjE0LDEwLjA5N2MtMS40NzUsNi45MTktNi40MiwxMC4wOTctMTMuNTIxLDEwLjA5N2gtNC4zMjQKCQlMNTQzLjk3NCw0My45OXogTTUyMi4yMjgsNzIuNTkyaDIyLjU4NmMxMS40NzUsMCwxNS45LTEuNDM3LDIxLjAxOC00LjkyYzMuNzgzLTIuNTY2LDYuNzEyLTcuODQ1LDcuODc0LTEzLjI4MQoJCWMxLjE3OS01LjUzLDAuMjc1LTkuOTkxLTEuODE3LTEyLjcwOWMtMy45OTgtNS4xMjctMTAuODk2LTYuMTAxLTIxLjg1MS02LjEwMWgtMTkuOTE1TDUyMi4yMjgsNzIuNTkyeiBNMzIzLjE3Miw0NC42MDNoLTEyLjE5MwoJCWwxLjkyMy05LjAyMmg0MC4wMjlsLTEuOTI3LDkuMDIyaC0xMi4xODlsLTUuOTcyLDI3Ljk4OWgtMTUuNjM4TDMyMy4xNzIsNDQuNjAzeiBNMjYwLjc2OCwzNS41ODFoMTUuNjM4bC0yLjkxNiwxMy42OWgxNS40ODIKCQlsMi45MjEtMTMuNjloMTUuNjQybC03Ljg5NSwzNy4wMTFoLTE1LjY0MmwzLjA1Mi0xNC4yOTloLTE1LjQ4NmwtMy4wNDcsMTQuMjk5aC0xNS42NDZMMjYwLjc2OCwzNS41ODF6IE0yMzYuODE2LDQ2Ljg2CgkJYzAtMC45NzYtMC4zNzYtMi4xMDMtMS4zMTktMi45NzFjLTAuOTUxLTAuODc1LTIuNTE1LTEuNDg4LTQuOTgzLTEuNDg4Yy02LjY5MSwwLTExLjM0OCw0LjQ1OS0xMi43NjQsMTEuMTIKCQljLTEuNTIxLDcuMTI4LDAuNjc2LDEyLjI1NCw4LjQ0NSwxMi4yNTRjMy4zOTQsMCw1Ljk3Ni0wLjUxMiw3LjUyNy0xLjI4MmwxLjIwNC01LjY0aC05LjA1M2wxLjY1Ny03Ljc4OWgyNC43bC00LjE2NywxOS41MwoJCWMtNy42NjcsMS42OTEtMTcuNjEyLDIuOTcxLTI1Ljc5NSwyLjk3MWMtMTguNjc3LDAtMjIuNzEzLTguMDk4LTIwLjM4LTE5LjAxNmMyLjk2My0xMy44OTEsMTQuMDc4LTE5LjkzNiwzMC40NDMtMTkuOTM2CgkJYzEzLjQ3OCwwLDIyLjUyNywyLjkyLDIwLjc5NCwxMi4yNDhoLTE2LjMwOVY0Ni44NnogTTE4Ni45ODYsMzUuNTgxaDE1LjY0MmwtNy44OTksMzcuMDExaC0xNS42MzhMMTg2Ljk4NiwzNS41ODF6CgkJIE01ODUuMDA5LDM1LjU4MWgxNy4yMzZsNC4yNzMsMjMuMzdsMTQuNTA1LTIzLjM3aDE1Ljk1MWwtMjQuMzExLDM3LjAxMWgtMTkuMTM4TDU4NS4wMDksMzUuNTgxeiBNNjUwLjQ0OCw0NC42MDNoLTEyLjE5MwoJCWwxLjkyMy05LjAyMmg0MC4wMjlsLTEuOTI3LDkuMDIyaC0xMi4xOWwtNS45NzIsMjcuOTg5aC0xNS42NDJMNjUwLjQ0OCw0NC42MDN6IE02ODYuODcsMzUuNjA5bC0wLjMxMywxLjUwMmgxLjgwM2wtMC43OTMsMy43MjYKCQloMS45MTdsMC43OTItMy43MjZoMS44MDVsMC4zMTMtMS41MDJINjg2Ljg3eiBNNjk4LjI2OSwzNS42MDlsLTEuOTA2LDMuMDI0bC0wLjU2NS0zLjAyNGgtMi41NDZsLTEuMTA3LDUuMjI4aDEuNzA3bDAuNTg4LTIuNzcxCgkJbDAuNTQzLDIuNzcxaDEuNzczbDEuNjQ2LTIuNjU2bC0wLjU2NCwyLjY1NmgxLjgzOGwxLjEwOC01LjIyOEg2OTguMjY5eiBNOTYuNDg0LDk1LjY4NWMtMC41NjQtMC4yNDEtMS4xMjItMC41MDUtMS42NjgtMC44MTgKCQljLTcuNjA1LTQuMzQ1LTEwLjI0Ni0xNC4wMy01LjktMjEuNjM1bDAuMzMtMC41NzVjMC42MDItMS4wNTUtMC4xMzctMS45NzYtMC41NTgtMi4yNjdjLTAuMDAyLTAuMDAyLTAuMDAyLTAuMDA0LTAuMDAyLTAuMDA0CgkJbC0wLjE1NS0wLjEyYy0zLjA0My0yLjIyNy01LjA5My01LjM5Ni01Ljk3OS04Ljg2NGMtMC4wOTEtMC4zNzItMC4xNzctMC43NzYtMC4yNjEtMS4yMTVjLTAuNDg0LTIuNzg1LTAuMjMtNS43MDgsMC44NDctOC40NjQKCQljMC4xMTktMC4yODMsMC4yNDYtMC41NzcsMC4zNjYtMC44NThjMC4wNzctMC4xNjcsMC4xNTgtMC4zMzYsMC4yNDEtMC41MDNjMC4wNzEtMC4xMzksMC4wOTQtMC4xOTIsMC4xMjItMC4yNDkKCQljMS43MTYtMy4xODcsNC40OTEtNS43MTYsNy44NTItNy4xM2MyLjMwMi0wLjk3LDQuMzA5LTEuODk4LDUuNzUzLTMuNWMxLjQ0Ni0xLjYsMi4yMjgtMi45NDgsMi45NzctNS4wMTEKCQljMC42OTQtMS45MDQsMC45NTgtMy40MzQsMC45NjEtNS42NDZjMC4wMDEtMi4xOS0wLjU4LTQuMDc0LTAuNzc1LTQuNzE1Yy0wLjE5NS0wLjY0Mi0wLjQzOS0xLjE5LTAuODI1LTIuMDQxCgkJYy0wLjIyOC0wLjUwMS0wLjM3NS0wLjc2My0wLjYwOS0xLjEyNmMtMC4xMTctMC4xODQtMC4yMjctMC4zOTctMC4zODItMC4zNDdjLTAuMTU1LDAuMDQ5LTAuMTUsMC4xMjUtMC4xNCwwLjE4NgoJCWMwLjA3MSwwLjYwOSwwLjExNywxLjIyNiwwLjExNywxLjg1M2MwLDguNzYtNy4wOTYsMTUuODU2LTE1Ljg1NywxNS44NTZoLTAuNjY2Yy0xLjIxMywwLTEuNjQ3LDEuMDk5LTEuNjksMS42MDgKCQljMCwwLjAwNC0wLjAwMSwwLjAwNC0wLjAwMSwwLjAwNmwtMC4wMywwLjE5NGMtMC40MjUsMy43MzItMi4xNDUsNy4wNzMtNC42OTksOS41NmMtMC4yOSwwLjI3Mi0wLjYwNywwLjU1OC0wLjk2MSwwLjg2MgoJCWMtMS4wODQsMC44OTQtMi4yOSwxLjY5OS0zLjU4NywyLjMyOWMtNS4zNzEsMi40NzktMTEuNTUsMS42OS0xNi4xMS0xLjcwOGMtMi4wMDEtMS40OTItMy44Mi0yLjc0OS01LjkzNC0zLjE4CgkJYy0yLjExMy0wLjQzMS0zLjY3Mi0wLjQyMy01LjgyOC0wLjAxOWMtMS45OTIsMC4zNjgtMy40NDUsMC45MTktNS4zNTIsMi4wMzljLTEuODg5LDEuMTEyLTMuMjE0LDIuNTY4LTMuNjY5LDMuMDYKCQljLTAuNDU2LDAuNDk1LTAuODAyLDAuOTgzLTEuMzQxLDEuNzVjLTAuMzE1LDAuNDQ4LTAuNDY1LDAuNzA4LTAuNjYzLDEuMDk1Yy0wLjA5OSwwLjE5NC0wLjIyNCwwLjM5Ny0wLjEwMywwLjUwNQoJCXMwLjE4NSwwLjA1NywwLjIzMiwwLjAyNWMwLjQ5LTAuMzY4LDAuOTk3LTAuNzIzLDEuNTM4LTEuMDQyYzcuNTQ2LTQuNDQ2LDE3LjI2NC0xLjkzNiwyMS43MTEsNS42MDlsMC4zMzksMC41NzcKCQljMC42MTcsMS4wNDQsMS43ODIsMC44NTgsMi4yNDQsMC42MzhjMC4wMDEtMC4wMDIsMC4wMDEtMC4wMDIsMC4wMDEtMC4wMDJsMC4xODctMC4wNzRjNy4wMTMtMy4xMjgsMTUuMzYtMC43NTcsMTkuNjUyLDUuNzIyCgkJYzAuMDkzLDAuMTM3LDAuMTI2LDAuMTgyLDAuMTY0LDAuMjM5YzEuOTEsMy4wNjksMi43MjgsNi43MjksMi4yOSwxMC4zNDRjLTAuMzAxLDIuNDc5LTAuNDkzLDQuNjgzLDAuMTgzLDYuNzMxCgkJYzAuNjc1LDIuMDUsMS40NTUsMy4zOTgsMi44NzMsNS4wN2MxLjMwOSwxLjU0NywyLjUwNywyLjUzNiw0LjQyNywzLjYzNWMxLjkwMywxLjA5LDMuODI1LDEuNTE3LDQuNDgsMS42NjcKCQljMC42NTQsMC4xNSwxLjI0OSwwLjIwOSwyLjE4MSwwLjI5NmMwLjU0NywwLjA1MywwLjg0NywwLjA1MywxLjI4MSwwLjAzMmMwLjIxNy0wLjAxMSwwLjQ1NS0wLjAwMiwwLjQ4OS0wLjE1OQoJCUM5Ni42MDksOTUuNzQsOTYuNTUxLDk1LjcxMyw5Ni40ODQsOTUuNjg1eiBNNDcuMjEyLDM3LjQyNmM2LjEwMywxLjkwMiwxMC4wMjYsNi4wMSwxMi40NzYsOC4wMzUKCQljMi40NDgsMi4wMjcsMy45ODEsMi40NDcsNi40MzcsMi4xNTdjNC4zNTgtMC41Miw3LjQ3NS00LjQ3NCw2Ljk1Ny04LjgzM2MtMC4yMjgtMS45MjUtMS4wOTItMy42NDUtMi40MzMtNC44NDEKCQljLTMuNzE1LTMuMzE4LTcuMTExLTUuNTAzLTEyLjMwMS03LjMxMmMtNS4xOTItMS44MTMtMTIuNzY4LTEuNjAyLTE5LjMyMSwwLjc4NGMtNi41NTEsMi4zODQtMTIuNjcsOC4zMDUtMTQuNzU4LDExLjAwMgoJCWMtMi4wODgsMi42OTItMy41Miw1LjQ2MS0zLjk5Miw2LjM0cy0wLjc1NSwxLjUwNS0wLjk0MywxLjk4NGMtMC4xODYsMC40NzgtMC4xMzQsMC41NywwLjAzNywwLjY3OAoJCWMwLjE3MywwLjEwNCwwLjIzMiwwLjA4NywwLjQyMy0wLjA4N2MwLjE4OC0wLjE3NSwwLjQ2MS0wLjQyLDEuMzU1LTEuMzFjMC44OTQtMC44OTQsMi43NjctMy4wMDcsNy4xNjQtNS41MDUKCQlDMzMuNjU0LDM3LjQ3OSw0MS4xMDksMzUuNTI0LDQ3LjIxMiwzNy40MjZ6IE05NS4xMDksMTExLjIyOGMtMC4yNDctMC4wNzYtMC41OTUtMC4xODgtMS44MTUtMC41MTQKCQljLTEuMjE3LTAuMzI3LTMuOTg3LTAuODg1LTguMzU3LTMuNDMyYy01LjMwNy0zLjA5OC0xMC43NDMtOC41NjEtMTIuMTYyLTE0Ljc5NWMtMS40MTktNi4yMzIsMC4xNjUtMTEuNjg4LDAuNjg3LTE0LjgyNQoJCWMwLjUyMi0zLjEzNCwwLjExNi00LjY3LTEuMzY4LTYuNjQ4Yy0yLjYzNi0zLjUxLTcuNjE4LTQuMjE4LTExLjEyOC0xLjU4M2MtMS41NTIsMS4xNjItMi42MDMsMi43NzUtMi45NjYsNC41MzUKCQljLTEuMDA1LDQuODc3LTEuMTg5LDguOTE0LTAuMTUsMTQuMzExYzEuMDQsNS4zOTcsNS4wMjcsMTEuODQ1LDEwLjM3OCwxNi4zMTRjNS4zNTEsNC40NywxMy41NDUsNi43ODgsMTYuOTIzLDcuMjQKCQljMy4zNzcsMC40NTQsNi40OSwwLjMsNy40ODcsMC4yNzFjMC45OTgtMC4wMzQsMS42ODEtMC4xMDMsMi4xOS0wLjE4MmMwLjUwNy0wLjA3OCwwLjU2Mi0wLjE3MSwwLjU2Ny0wLjM3MgoJCUM5NS4zOTksMTExLjM0Nyw5NS4zNTUsMTExLjMwMiw5NS4xMDksMTExLjIyOHogTTExOC4zNTksMjIuNjYxYy0xLjI4LTMuMTU5LTIuOTUyLTUuNzktMy40NzMtNi42NDIKCQljLTAuNTIzLTAuODQ3LTAuOTIxLTEuNDEtMS4yNDEtMS44MDljLTAuMzItMC40MDQtMC40MjctMC40MDYtMC42MDUtMC4zMTFjLTAuMTc4LDAuMDk3LTAuMTk2LDAuMTU2LTAuMTM3LDAuNDA4CgkJYzAuMDU3LDAuMjUxLDAuMTMxLDAuNjExLDAuNDUyLDEuODNjMC4zMiwxLjIyMSwxLjIwNywzLjkwMSwxLjE1Nyw4Ljk2Yy0wLjA2MSw2LjE0NS0yLjExOSwxMy41NzQtNi44MzEsMTcuODkzCgkJYy00LjcxMiw0LjMxNy0xMC4yMzgsNS42NDItMTMuMjIxLDYuNzQxYy0yLjk4MywxLjA5OS00LjExNSwyLjIxMy01LjA5OSw0LjQ4MmMtMS43NDUsNC4wMjgsMC4xMDcsOC43MDcsNC4xMzYsMTAuNDUyCgkJYzEuNzc4LDAuNzcyLDMuNjk4LDAuODg5LDUuNDA5LDAuMzNjNC43MzYtMS41NDEsOC4zMy0zLjM3OSwxMi41MDctNi45NTVjNC4xNzYtMy41NzYsNy44MDItMTAuMjMyLDkuMDM2LTE3LjA5NAoJCUMxMjEuNjgsMzQuMDg1LDExOS42MzYsMjUuODE4LDExOC4zNTksMjIuNjYxeiIvPgo8L2c+Cjwvc3ZnPgo=";
+document.getElementById('navLogo').src = "data:image/svg+xml;base64," + LOGO_DARK_B64;
+
+/* ---------- SECTION / QUESTION DEFINITIONS ---------- */
+const sections = [
+  { id:'profile', title:'Organization Profile', sub:"Tell us a bit about your organization.", fields:[
+    {id:'company', label:'Company name', type:'text'},
+    {id:'industry', label:'Industry', type:'text'},
+    {id:'employees', label:'Company size', type:'select', options:['1–50','51–200','201–1,000','1,001–5,000','5,000+']},
+    {id:'audience', label:'Who is this training primarily for?', type:'select', options:['New hires / onboarding','Sales team','Frontline / operations staff','Franchisees or licensees','Customers or partners','Mixed / multiple audiences']},
+    {id:'goal', label:'Primary training goal', type:'select', options:['Faster onboarding','Sales performance','Compliance / consistency','Certification','Customer education','Reducing turnover']}
+  ]},
+  { id:'course', title:'Course Information', sub:"Now let's look at the course itself.", fields:[
+    {id:'courseTitle', label:'Course title', type:'text'},
+    {id:'purpose', label:'What is the course meant to accomplish?', type:'text'},
+    {id:'delivery', label:'Primary delivery format', type:'options', options:['Live instructor-led','Recorded video','Written / PDF materials','Interactive online course','Blended (mix of formats)']},
+    {id:'length', label:'Typical course length', type:'select', options:['Under 30 minutes','30–60 minutes','1–3 hours','Half day or more','Multi-week program']},
+    {id:'learners', label:'Annual learners trained', type:'select', options:['Under 100','100–500','500–2,000','2,000–10,000','10,000+']},
+    {id:'platform', label:'Current platform used to deliver training', type:'text'},
+    {id:'structureRating', label:'How organized is your current content?', type:'options', score:true, options:[
+      {l:'Scattered — no real sequence',v:20},{l:'Loosely organized',v:45},{l:'Fairly structured',v:70},{l:'Clearly structured and sequenced',v:95}]},
+    {id:'qualityRating', label:'How would you rate the depth and quality of your content?', type:'options', score:true, options:[
+      {l:'Needs significant work',v:20},{l:'Decent but dated',v:45},{l:'Solid and accurate',v:70},{l:'Excellent, expert-level',v:95}]},
+    {id:'mobileAccess', label:'Can learners complete training on a mobile device?', type:'options', score:true, options:[
+      {l:'No, desktop only',v:15},{l:'Partially, some content only',v:50},{l:'Yes, fully responsive',v:95}]}
+  ]},
+  { id:'engagement', title:'Learning Experience', sub:"How learners actually experience the content.", category:'learnerEngagement', fields:[
+    {id:'videoHeavy', label:'Does your course primarily consist of recorded video?', type:'options', score:true, options:[
+      {l:'Yes, almost entirely video',v:20},{l:'Mostly video',v:40},{l:'A mix of video and interaction',v:70},{l:'No, mostly interactive',v:95}]},
+    {id:'interactFreq', label:'How frequently do learners actively interact with the content?', type:'options', score:true, options:[
+      {l:'Rarely',v:15},{l:'Occasionally',v:40},{l:'Regularly',v:70},{l:'Constantly',v:95}]},
+    {id:'decisions', label:'How often must learners make decisions rather than simply watch or read?', type:'options', score:true, options:[
+      {l:'Never',v:15},{l:'Rarely',v:35},{l:'Sometimes',v:60},{l:'Often',v:95}]},
+    {id:'adapts', label:'Does your training adapt based on learner responses?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Somewhat',v:50},{l:'Yes, fully adaptive',v:95}]},
+    {id:'feedback', label:'Do learners receive immediate feedback?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Sometimes',v:50},{l:'Yes, always',v:95}]},
+    {id:'practice', label:'Can learners practice real-world situations within the course?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Limited practice',v:45},{l:'Yes, simulated scenarios',v:95}]}
+  ]},
+  { id:'retention', title:'Knowledge Retention', sub:"How well information sticks after training ends.", category:'knowledgeRetention', fields:[
+    {id:'revisit', label:'Do learners revisit content after initial completion?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Occasionally',v:50},{l:'Yes, regularly',v:95}]},
+    {id:'reinforced', label:'Are concepts reinforced over time?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Somewhat',v:50},{l:'Yes, continuously',v:95}]},
+    {id:'cumulative', label:'Are quizzes cumulative (building on prior lessons)?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Partially',v:50},{l:'Yes',v:95}]},
+    {id:'realistic', label:'Is knowledge tested in realistic, job-relevant situations?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Somewhat',v:50},{l:'Yes',v:95}]}
+  ]},
+  { id:'assessment', title:'Assessments', sub:"How you verify understanding, not just completion.", category:'assessmentStrategy', fields:[
+    {id:'assessFreq', label:'How often do assessments occur?', type:'options', score:true, options:[
+      {l:'Only at the end',v:25},{l:'Occasionally throughout',v:55},{l:'Continuously throughout',v:95}]},
+    {id:'scenarioBased', label:'Are assessments scenario-based rather than pure recall?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Somewhat',v:50},{l:'Yes',v:95}]},
+    {id:'personalizedFeedback', label:'Do learners receive personalized feedback on assessments?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Generic feedback only',v:45},{l:'Yes, personalized',v:95}]},
+    {id:'weakAreas', label:'Can instructors easily identify each learner\'s weak areas?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Somewhat',v:50},{l:'Yes, clearly',v:95}]}
+  ]},
+  { id:'ai', title:'AI Readiness', sub:"How AI currently shows up in your training.", category:'aiReadiness', fields:[
+    {id:'usesAI', label:'Do you currently use AI in your training?', type:'options', score:true, options:[
+      {l:'No',v:5},{l:'Exploring options',v:30},{l:'Yes, in limited ways',v:60},{l:'Yes, extensively',v:95}]},
+    {id:'aiQuestions', label:'Can learners ask questions and get answers within the course?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Only by contacting an instructor',v:40},{l:'Yes, AI-assisted',v:95}]},
+    {id:'aiPersonalize', label:'Does AI personalize the learning path for each learner?', type:'options', score:true, options:[
+      {l:'No',v:10},{l:'Somewhat',v:50},{l:'Yes',v:95}]},
+    {id:'aiRecommend', label:'Can AI recommend additional content based on performance?', type:'options', score:true, options:[
+      {l:'No',v:10},{l:'Somewhat',v:50},{l:'Yes',v:95}]}
+  ]},
+  { id:'analytics', title:'Analytics & Reporting', sub:"What you're able to measure today.", category:'reportingAnalytics', fields:[
+    {id:'metrics', label:'Which of these do you currently monitor? (select all that apply)', type:'checklist', score:true,
+      options:['Completion','Assessment scores','Learner engagement','Time spent','Revenue impact','Performance improvements']}
+  ]},
+  { id:'scalability', title:'Scalability', sub:"How training grows with your organization.", category:'scalability', fields:[
+    {id:'buildTime', label:'How long does it typically take to create a new course?', type:'options', score:true, options:[
+      {l:'Months',v:15},{l:'Several weeks',v:40},{l:'Days',v:70},{l:'Hours, with AI assistance',v:95}]},
+    {id:'whoBuilds', label:'Who builds your content today?', type:'options', score:true, options:[
+      {l:'Only one or two SMEs',v:20},{l:'A small internal team',v:50},{l:'A distributed team with tools',v:75},{l:'AI-assisted, at scale',v:95}]},
+    {id:'updateFreq', label:'How often is content updated?', type:'options', score:true, options:[
+      {l:'Rarely',v:15},{l:'Occasionally',v:40},{l:'Regularly',v:70},{l:'Continuously',v:95}]},
+    {id:'standardized', label:'Is training standardized across locations or teams?', type:'options', score:true, options:[
+      {l:'No',v:15},{l:'Somewhat',v:50},{l:'Yes, fully',v:95}]}
+  ]}
+];
+
+const CATEGORY_LABELS = {
+  courseStructure:'Course Structure', contentQuality:'Content Quality', learnerEngagement:'Learner Engagement',
+  knowledgeRetention:'Knowledge Retention', assessmentStrategy:'Assessment Strategy', aiReadiness:'AI Readiness',
+  mobileLearning:'Mobile Learning', reportingAnalytics:'Reporting & Analytics', scalability:'Scalability',
+  overallExperience:'Overall Experience'
+};
+
+let current = 0; // 0 = intro handled separately; form sections index into `sections`
+const answers = {};
+
+/* ---------- LEAD CAPTURE -> GHL ----------
+   POSTs to our own server-side endpoint (api/submit-lead.js), which holds the
+   GHL webhook URL/credentials and forwards the payload. Never call GHL
+   directly from the browser. Fire-and-forget: lead capture failures must
+   never block the quiz UI. Called once on lead-gate submit (stage:
+   'started_audit') and again on report completion (stage:
+   'completed_audit') with the full scored payload. ---------------------- */
+function submitLead(payload){
+  fetch('/api/submit-lead', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ submittedAt: new Date().toISOString(), ...payload })
+  }).catch(e => console.error('Lead capture failed (non-blocking):', e));
+}
+
+function handleIntroSubmit(event){
+  event.preventDefault();
+  startQuiz();
+  return false;
+}
+
+function startQuiz(){
+  const name = document.getElementById('lead_name').value.trim();
+  const email = document.getElementById('lead_email').value.trim();
+  const phone = document.getElementById('lead_phone').value.trim();
+  const errEl = document.getElementById('introLeadError');
+
+  if(!name || !email || !phone){
+    errEl.textContent = 'Name, email, and phone are all required to start your audit.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if(!isValidEmail(email)){
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if(!isValidPhone(phone)){
+    errEl.textContent = 'Please enter a valid phone number.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  answers.leadName = name;
+  answers.leadEmail = email;
+  answers.leadPhone = phone;
+
+  // Fires immediately on lead-gate submit (before any quiz questions are answered)
+  // so a lead is captured even if someone abandons mid-quiz. Non-blocking: a
+  // failure here should never stop the quiz from starting.
+  submitLead({
+    name, email, phone,
+    stage: 'started_audit',
+    // These four map 1:1 to matching custom fields on the GHL contact record.
+    utm_source: utmParams.utm_source,
+    utm_medium: utmParams.utm_medium,
+    utm_campaign: utmParams.utm_campaign,
+    utm_content: utmParams.utm_content
+  });
+
+  document.getElementById('screen-intro').classList.remove('active');
+  document.getElementById('screen-form').classList.add('active');
+  current = 0;
+  renderSection();
+}
+
+function isValidEmail(v){
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+function isValidPhone(v){
+  const digits = v.replace(/\D/g,'');
+  return digits.length >= 10;
+}
+
+function renderSection(){
+  const s = sections[current];
+  const body = document.getElementById('formSectionBody');
+  document.getElementById('progressFill').style.width = Math.round((current/sections.length)*100)+'%';
+  document.getElementById('progressText').textContent = `Section ${current+1} of ${sections.length}`;
+  document.getElementById('progressPct').textContent = Math.round((current/sections.length)*100)+'%';
+  document.getElementById('backBtn').style.visibility = current===0 ? 'hidden' : 'visible';
+  document.getElementById('nextBtn').textContent = current===sections.length-1 ? 'Generate My Report' : 'Continue';
+
+  let html = `<div class="section-title">${s.title}</div><div class="section-sub">${s.sub||''}</div>`;
+  s.fields.forEach((f,fIdx)=>{
+    html += `<div class="field"><label><span class="q-num">${fIdx+1}</span><span>${f.label}</span></label>`;
+    if(f.type==='text'){
+      html += `<input type="text" id="f_${f.id}" value="${answers[f.id]||''}" oninput="answers['${f.id}']=this.value">`;
+    } else if(f.type==='select'){
+      html += `<select id="f_${f.id}" onchange="answers['${f.id}']=this.value">
+        <option value="">Select...</option>
+        ${f.options.map(o=>`<option value="${o}" ${answers[f.id]===o?'selected':''}>${o}</option>`).join('')}
+      </select>`;
+    } else if(f.type==='options'){
+      html += `<div class="option-grid">`;
+      f.options.forEach((o,idx)=>{
+        const label = typeof o==='string'?o:o.l;
+        const val = typeof o==='string'?o:o.v;
+        const selected = answers[f.id+'_label']===label ? 'selected':'';
+        html += `<div class="option-card ${selected}" onclick="selectOption('${f.id}',${idx},this)">${label}</div>`;
+      });
+      html += `</div>`;
+    } else if(f.type==='checklist'){
+      html += `<div class="check-grid">`;
+      f.options.forEach((o,idx)=>{
+        const arr = answers[f.id]||[];
+        const selected = arr.includes(o) ? 'selected':'';
+        html += `<div class="check-card ${selected}" onclick="toggleCheck('${f.id}','${o}',this)"><span class="check-box">${arr.includes(o)?'✓':''}</span>${o}</div>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  });
+  body.innerHTML = html;
+  // store option metadata for scoring
+  s.fields.forEach(f=>{ if(f.type==='options') answers['__opts_'+f.id]=f.options; });
+  scheduleHeightUpdate();
+}
+
+function selectOption(fieldId, idx, el){
+  const s = sections[current];
+  const f = s.fields.find(x=>x.id===fieldId);
+  const o = f.options[idx];
+  const label = typeof o==='string'?o:o.l;
+  const val = typeof o==='string'?null:o.v;
+  answers[fieldId+'_label'] = label;
+  if(f.score) answers[fieldId+'_score'] = val;
+  el.parentNode.querySelectorAll('.option-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleCheck(fieldId, value, el){
+  if(!answers[fieldId]) answers[fieldId]=[];
+  const arr = answers[fieldId];
+  const i = arr.indexOf(value);
+  if(i>-1){ arr.splice(i,1); el.classList.remove('selected'); el.querySelector('.check-box').textContent=''; }
+  else { arr.push(value); el.classList.add('selected'); el.querySelector('.check-box').textContent='✓'; }
+}
+
+function nextSection(){
+  if(current < sections.length-1){ current++; renderSection(); window.scrollTo(0,0); }
+  else { generateReport(); }
+}
+function prevSection(){
+  if(current>0){ current--; renderSection(); window.scrollTo(0,0); }
+}
+
+/* ---------- SCORING ---------- */
+function avg(nums){ return nums.length ? nums.reduce((a,b)=>a+b,0)/nums.length : 0; }
+
+function computeScores(){
+  const courseSec = sections.find(s=>s.id==='course');
+  const courseStructure = answers['structureRating_score'] ?? 50;
+  const contentQuality = answers['qualityRating_score'] ?? 50;
+  const mobileLearning = answers['mobileAccess_score'] ?? 50;
+
+  const engagementFields = ['videoHeavy','interactFreq','decisions','adapts','feedback','practice'];
+  const learnerEngagement = avg(engagementFields.map(id=>answers[id+'_score']).filter(v=>v!==undefined));
+
+  const retentionFields = ['revisit','reinforced','cumulative','realistic'];
+  const knowledgeRetention = avg(retentionFields.map(id=>answers[id+'_score']).filter(v=>v!==undefined));
+
+  const assessFields = ['assessFreq','scenarioBased','personalizedFeedback','weakAreas'];
+  const assessmentStrategy = avg(assessFields.map(id=>answers[id+'_score']).filter(v=>v!==undefined));
+
+  const aiFields = ['usesAI','aiQuestions','aiPersonalize','aiRecommend'];
+  const aiReadiness = avg(aiFields.map(id=>answers[id+'_score']).filter(v=>v!==undefined));
+
+  const metricsSelected = (answers['metrics']||[]).length;
+  const reportingAnalytics = Math.round((metricsSelected/6)*100);
+
+  const scaleFields = ['buildTime','whoBuilds','updateFreq','standardized'];
+  const scalability = avg(scaleFields.map(id=>answers[id+'_score']).filter(v=>v!==undefined));
+
+  const cats = { courseStructure, contentQuality, learnerEngagement, knowledgeRetention,
+    assessmentStrategy, aiReadiness, mobileLearning, reportingAnalytics, scalability };
+  const overall = avg(Object.values(cats));
+  cats.overallExperience = overall;
+  return { cats, overall };
+}
+
+function gradeFor(score){
+  if(score>=90) return 'A'; if(score>=85) return 'A-'; if(score>=80) return 'B+';
+  if(score>=75) return 'B'; if(score>=70) return 'B-'; if(score>=65) return 'C+';
+  if(score>=60) return 'C'; if(score>=55) return 'C-'; if(score>=50) return 'D+';
+  if(score>=45) return 'D'; return 'F';
+}
+function colorFor(score){
+  if(score>=75) return getComputedStyle(document.documentElement).getPropertyValue('--success');
+  if(score>=55) return getComputedStyle(document.documentElement).getPropertyValue('--warning');
+  return getComputedStyle(document.documentElement).getPropertyValue('--red');
+}
+
+/* ---------- FALLBACK NARRATIVE (used if API call fails) ---------- */
+function fallbackNarrative(cats){
+  const templates = {
+    courseStructure:{low:"Your content lacks a clear, sequential structure learners can follow with confidence.",mid:"Your course has a workable structure but could guide learners more deliberately from start to finish.",high:"Your course is well-organized, giving learners a clear path through the material."},
+    contentQuality:{low:"The depth and accuracy of your content need meaningful investment.",mid:"Your content is solid but could be refreshed and deepened in key areas.",high:"Your content quality is a genuine strength to build on."},
+    learnerEngagement:{low:"Your course currently emphasizes content consumption over learner participation, which research shows reduces retention and completion.",mid:"Learners get some interaction, but most of the experience is still passive.",high:"Your course keeps learners actively engaged rather than passively watching."},
+    knowledgeRetention:{low:"Learners receive information in a linear format with little reinforcement, so knowledge fades quickly after training ends.",mid:"Some reinforcement exists, but it isn't continuous enough to lock in retention.",high:"Your program reinforces knowledge consistently instead of relying on a single final test."},
+    assessmentStrategy:{low:"Your assessments verify completion more than they measure real understanding.",mid:"Assessments capture some understanding but aren't yet scenario-driven.",high:"Your assessments closely mirror real on-the-job decisions."},
+    aiReadiness:{low:"Every learner gets the same static experience regardless of their prior knowledge or pace.",mid:"You've started exploring AI, but it isn't yet personalizing the learner experience.",high:"AI is already shaping a more personalized learning experience for you."},
+    mobileLearning:{low:"Learners can't reliably access training from a mobile device, which limits completion.",mid:"Mobile access is partial, creating friction for on-the-go learners.",high:"Your training is accessible wherever your learners are."},
+    reportingAnalytics:{low:"Reporting is focused almost entirely on completion, with little visibility into understanding or business impact.",mid:"You're tracking more than completion, but key performance signals are still missing.",high:"You have strong visibility into engagement and performance, not just completion."},
+    scalability:{low:"Scaling relies heavily on manual work from one or two subject matter experts, which slows growth.",mid:"You have a repeatable process, but building and updating content still takes real time.",high:"You can create and update training quickly without bottlenecking on a few people."}
+  };
+  const lsvt = {
+    courseStructure:"LightSpeed VT's AI Courseware Wizard turns existing source material into structured course outlines and scripts.",
+    contentQuality:"LightSpeed VT's AI Courseware Wizard and AI Ghost Writer help organize and polish existing subject matter expertise without a full rebuild.",
+    learnerEngagement:"LightSpeed VT's Interactive Studio turns regular video into truly interactive experiences, with full tracking of what learners do inside them.",
+    knowledgeRetention:"LightSpeed VT's AI Tutor reinforces concepts on demand, and Assigned Training 'Revolutions' let you assign tracked, repeated training instead of a one-time watch.",
+    assessmentStrategy:"LightSpeed VT's AI Scored Response evaluates reflective answers for real comprehension, and AI Question Generation builds assessments straight from your video content.",
+    aiReadiness:"LightSpeed VT's AI Tutor, AI Roleplay, AI Avatars, and AI Insights already bring AI into the learner, content, and reporting experience — not just content creation.",
+    mobileLearning:"LightSpeed VT's VT²GO mobile app lets learners complete training, including offline, from any device.",
+    reportingAnalytics:"LightSpeed VT's AI Insights lets you ask questions about training data in plain English, backed by dozens of built-in reports and dashboards.",
+    scalability:"LightSpeed VT's Multi Private Label Environment lets you run unlimited sub-private-labeled systems — including licensing and rebranding your own course for other companies to sell as their own."
+  };
+  const bucket = v => v>=75?'high':v>=55?'mid':'low';
+  const out = {};
+  Object.keys(templates).forEach(k=>{
+    out[k] = { insight: templates[k][bucket(cats[k])], lsvtAngle: lsvt[k] };
+  });
+  return out;
+}
+
+/* ---------- REPORT GENERATION ---------- */
+async function generateReport(){
+  document.getElementById('screen-form').classList.remove('active');
+  document.getElementById('screen-loading').classList.add('active');
+  scheduleHeightUpdate();
+
+  const { cats, overall } = computeScores();
+  const grade = gradeFor(overall);
+
+  const profile = {
+    company: answers.company || 'Your organization',
+    industry: answers.industry || 'unspecified industry',
+    audience: answers.audience || 'unspecified audience',
+    goal: answers.goal || 'unspecified goal',
+    courseTitle: answers.courseTitle || 'your course',
+    delivery: answers.delivery_label || 'unspecified format',
+    length: answers.length || 'unspecified length'
+  };
+
+  const sortedGaps = Object.entries(cats)
+    .filter(([k])=>k!=='overallExperience')
+    .sort((a,b)=>a[1]-b[1]);
+
+  const categoryScores = {};
+  Object.entries(cats).forEach(([k,v])=>{ categoryScores[k] = Math.round(v); });
+  submitLead({
+    name: answers.leadName, email: answers.leadEmail, phone: answers.leadPhone,
+    stage: 'completed_audit',
+    utm_source: utmParams.utm_source,
+    utm_medium: utmParams.utm_medium,
+    utm_campaign: utmParams.utm_campaign,
+    utm_content: utmParams.utm_content,
+    company: profile.company, industry: profile.industry, audience: profile.audience,
+    goal: profile.goal, courseTitle: profile.courseTitle,
+    overallScore: Math.round(overall),
+    categoryScores
+  });
+
+  let aiResult = null;
+  try{
+    aiResult = await callClaudeForNarrative(profile, cats, overall, grade, sortedGaps);
+  }catch(e){
+    console.error('AI generation failed, using fallback narrative', e);
+  }
+
+  renderReport(profile, cats, overall, grade, sortedGaps, aiResult);
+}
+
+async function callClaudeForNarrative(profile, cats, overall, grade, sortedGaps){
+  const catLines = Object.entries(cats).map(([k,v])=>`${CATEGORY_LABELS[k]}: ${Math.round(v)}/100`).join('\n');
+  const lowestFour = sortedGaps.slice(0,4).map(([k,v])=>`${CATEGORY_LABELS[k]} (${Math.round(v)}/100)`).join(', ');
+
+  const prompt = `You are an independent learning & development consultant writing a frank, consultant-grade executive audit for ${profile.company}, a company in ${profile.industry}. Their course "${profile.courseTitle}" targets ${profile.audience} with the goal of ${profile.goal}. Delivery format: ${profile.delivery}. Overall score: ${Math.round(overall)}/100 (grade ${grade}).
+
+Category scores:
+${catLines}
+
+Their four weakest areas are: ${lowestFour}.
+
+Write output as STRICT JSON ONLY, no markdown fences, no preamble, matching exactly this shape:
+{
+ "executiveSummary": "2-3 sentence honest summary of their overall training maturity and single biggest opportunity, written like an outside consultant who has no stake in any particular vendor. Max 55 words.",
+ "categories": {
+   "<categoryKey>": {"insight": "1 sentence diagnosing this category based on its score, as a neutral instructional-design assessment with NO product or vendor mentioned. Max 22 words.", "lsvtAngle": "1 sentence naming ONE specific, real LightSpeed VT capability from the exclusive-features list below that addresses this exact gap. Max 22 words."},
+   ... one entry for EVERY key in this list: ${Object.keys(cats).join(', ')}
+ },
+ "roadmap": [
+   {"title":"short priority title","description":"1 sentence on what to do, framed as general instructional-design best practice, not a product pitch. Max 25 words.","lsvtSolution":"1 sentence naming the specific LightSpeed VT capability (from the list below) that solves it. Max 22 words."}
+   ... exactly 4 items, ordered by their 4 weakest categories
+ ],
+ "overallRecommendation": "2-3 sentence closing recommendation. Max 60 words."
+}
+
+CRITICAL — the "insight" fields and "executiveSummary" must be a genuinely honest, sometimes critical assessment based only on their actual answers and scores. Do not soften a bad score to make a sales pitch land better, and do not mention LightSpeed VT anywhere in those fields — keep the diagnosis and the vendor pitch strictly separate so the reader trusts the assessment as real, not marketing copy wearing a quiz costume.
+
+Only in the "lsvtAngle" and "lsvtSolution" fields, and only there, cite LightSpeed VT — and only using capabilities from this exact list of things LightSpeed VT actually does (do not invent features not on this list, and use these exact feature names):
+- Interactive Studio: turns regular video into truly interactive experiences with full tracking of learner behavior inside them
+- AI Courseware Wizard: uploads existing source material and generates structured course outlines and video scripts
+- AI Ghost Writer: generates polished course descriptions, lesson summaries, and page content from a topic and a few bullet points
+- AI Tutor: an on-demand study partner that answers learner questions, explains concepts, and guides learners to the right training
+- AI Avatars: every course includes a professional Library Avatar presenter; a premium Personal Avatar option trains on a real person's voice and likeness so they can present without being on camera
+- AI Roleplay: realistic audio/video practice scenarios for sales, service, or leadership training, with feedback
+- AI Scored Response: evaluates reflective learner answers for real comprehension, not just multiple choice
+- AI Question Generation: builds assessment questions directly from a chapter's video content
+- AI Insights: lets admins ask questions about training data in plain English
+- Assigned Training with "Revolutions": assigns courses to be taken with tracked repetition
+- Multi Private Label Environment: run unlimited sub-private-labeled systems — this is how a course owner can license and rebrand their own course for another company to sell as their own, turning a single course into a full B2B offering (this is one of LightSpeed VT's biggest differentiators)
+- VT²GO: native mobile app for completing training on any device, including offline
+- Deep Reporting & Dashboards: reports across users, content, assignments, usage, and certifications
+- Built-in monetization tools: one-click upsell triggers, subscription management, and direct-to-Stripe checkout
+- Track record: building training technology since 2000, with over $1.6 billion in online course sales in the last 10 years
+
+Tone: confident, concrete, never hypey. Never use "leverage," "utilize," "world-class," or "revolutionary." Be specific about instructional design concepts in the diagnosis, and specific about which named LightSpeed VT capability solves which named gap — not vague superiority claims.`;
+
+  // Calls our own server-side endpoint (api/generate-report.js), which holds
+  // the real ANTHROPIC_API_KEY and calls the Anthropic Messages API. Never
+  // call api.anthropic.com directly from the browser — there's no key here,
+  // and exposing one client-side would leak it to every visitor.
+  const controller = new AbortController();
+  const timeout = setTimeout(()=>controller.abort(), 20000);
+  let response;
+  try{
+    response = await fetch("/api/generate-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+      signal: controller.signal
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
+  if(!response.ok){
+    const errBody = await response.json().catch(()=>({}));
+    throw new Error(errBody.error || `Report generation failed (${response.status})`);
+  }
+  return await response.json();
+}
+
+function renderReport(profile, cats, overall, grade, sortedGaps, aiResult){
+  document.getElementById('screen-loading').classList.remove('active');
+  document.getElementById('screen-report').classList.add('active');
+
+  const fallback = fallbackNarrative(cats);
+  const usingFallback = !aiResult;
+  if(usingFallback){
+    document.getElementById('errorBanner').style.display='block';
+    document.getElementById('errorBanner').textContent = "Live AI generation wasn't reachable in this environment, so this report is using LightSpeed VT's standard audit narrative instead of a fully personalized one.";
+  }
+
+  document.getElementById('reportCompanyLine').textContent = `Prepared for ${answers.leadName || profile.company} — ${profile.courseTitle}`;
+  document.getElementById('overallScoreNum').textContent = Math.round(overall);
+  document.getElementById('overallGradeLbl').textContent = grade;
+  document.getElementById('execSummaryText').textContent = aiResult ? aiResult.executiveSummary :
+    `${profile.company}'s course shows real strengths, but scores ${Math.round(overall)}/100 (${grade}) overall — mostly held back by passive delivery and limited AI personalization. The fastest path forward is changing how the content is delivered, not rewriting it.`;
+
+  // Category grid
+  const grid = document.getElementById('categoryGrid');
+  grid.innerHTML = Object.entries(cats).map(([k,v])=>{
+    const color = v>=75?'var(--success)':v>=55?'var(--warning)':'var(--red)';
+    return `<div class="cat-card">
+      <div class="cat-top"><span class="cat-name">${CATEGORY_LABELS[k]}</span><span class="cat-score" style="color:${color};">${Math.round(v)}</span></div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${Math.round(v)}%;background:${color};"></div></div>
+    </div>`;
+  }).join('');
+
+  // Insight cards, ordered lowest score first (biggest opportunity first)
+  const insightList = document.getElementById('insightList');
+  const orderedKeys = Object.entries(cats).filter(([k])=>k!=='overallExperience').sort((a,b)=>a[1]-b[1]).map(([k])=>k);
+  insightList.innerHTML = orderedKeys.map(k=>{
+    const v = cats[k];
+    const color = v>=75?'var(--success)':v>=55?'var(--warning)':'var(--red)';
+    const bg = v>=75?'var(--success-light)':v>=55?'var(--warning-light)':'var(--red-light)';
+    const textcol = v>=75?'var(--success-dark)':v>=55?'var(--warning-dark)':'var(--red-dark)';
+    const data = aiResult ? aiResult.categories[k] : fallback[k];
+    if(!data) return '';
+    return `<div class="insight-card">
+      <div class="insight-top"><h3>${CATEGORY_LABELS[k]}</h3><span class="badge-score" style="background:${bg};color:${textcol};">${Math.round(v)}/100</span></div>
+      <p>${data.insight}</p>
+      <div class="lsvt-line"><b>How LightSpeed VT helps:</b> ${data.lsvtAngle}</div>
+    </div>`;
+  }).join('');
+
+  // Roadmap
+  const roadmapList = document.getElementById('roadmapList');
+  if(aiResult && aiResult.roadmap){
+    roadmapList.innerHTML = aiResult.roadmap.map((r,i)=>`
+      <div class="roadmap-item">
+        <div class="roadmap-num">${i+1}</div>
+        <div><h3>${r.title}</h3><p>${r.description}</p><div class="lsvt-line"><b>LightSpeed VT solution:</b> ${r.lsvtSolution}</div></div>
+      </div>`).join('');
+  } else {
+    const top4 = sortedGaps.slice(0,4);
+    roadmapList.innerHTML = top4.map(([k],i)=>`
+      <div class="roadmap-item">
+        <div class="roadmap-num">${i+1}</div>
+        <div><h3>Strengthen ${CATEGORY_LABELS[k]}</h3><p>${fallback[k].insight}</p><div class="lsvt-line"><b>LightSpeed VT solution:</b> ${fallback[k].lsvtAngle}</div></div>
+      </div>`).join('');
+  }
+
+  document.getElementById('finalRecText').textContent = aiResult ? aiResult.overallRecommendation :
+    `${profile.company} doesn't need more content — it needs a system that makes the content it already has interactive, measurable, and AI-personalized. LightSpeed VT is the only platform built to do all of that inside one product, instead of stitching together video hosting, quiz tools, and separate analytics.`;
+
+  renderFeatureGrid();
+  window.scrollTo(0,0);
+  scheduleHeightUpdate();
+}
+</script>
+<footer style="text-align:center;padding:28px 20px 36px;font-family:var(--font-body);font-size:12.5px;color:var(--dark-grey);line-height:1.8;border-top:1px solid var(--border);margin-top:20px;">
+  <div>© 2026 LightSpeed VT
+    | <a href="https://support.lightspeedvt.com/docs/privacy-notice" target="_blank" style="color:var(--darker-grey);text-decoration:underline;">Privacy Notice</a>
+    | <a href="https://support.lightspeedvt.com/docs/disclaimer" target="_blank" style="color:var(--darker-grey);text-decoration:underline;">Disclaimer</a>
+    | <a href="https://support.lightspeedvt.com/docs/acceptable-use-policy" target="_blank" style="color:var(--darker-grey);text-decoration:underline;">Acceptable Use Policy</a>
+  </div>
+  <div>11411 Southern Highlands Pkwy. Las Vegas, NV | (702) 369-4260</div>
+</footer>
+</body>
+</html>

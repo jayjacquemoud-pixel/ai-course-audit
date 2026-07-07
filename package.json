@@ -1,0 +1,9 @@
+{
+  "name": "ai-course-audit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Interactive Course Audit™ — LightSpeed VT lead-magnet quiz tool",
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}
