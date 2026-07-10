@@ -1,0 +1,2 @@
+/*
+  Content-Security-Policy: frame-ancestors 'self' https://monetize.lightspeedvt.com https://*.lightspeedvt.com;

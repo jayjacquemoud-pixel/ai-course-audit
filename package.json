@@ -4,6 +4,6 @@
   "private": true,
   "description": "AI Interactive Course Audit™ — LightSpeed VT lead-magnet quiz tool",
   "scripts": {
-    "dev": "vercel dev"
+    "dev": "wrangler pages dev ."
   }
 }
