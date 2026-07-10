@@ -9,65 +9,86 @@ front-end prototype.
 
 - `index.html` — the full tool (quiz, scoring, report). Single file, no build
   step, unchanged from the prototype's design/copy/scoring logic.
-- `functions/api/generate-report.js` — Cloudflare Pages Function that calls
-  the Anthropic Messages API server-side, so the API key never reaches the
-  browser. Cloudflare auto-routes this file to `POST /api/generate-report`.
-- `functions/api/submit-lead.js` — Cloudflare Pages Function that forwards
-  lead + UTM data to a GHL webhook. Auto-routed to `POST /api/submit-lead`.
+- `functions/api/generate-report.js` — calls the Anthropic Messages API
+  server-side, so the API key never reaches the browser. Exports
+  `onRequest(context)` (Cloudflare's Web-standard `Request`/`Response`
+  handler signature).
+- `functions/api/submit-lead.js` — forwards lead + UTM data to a GHL
+  webhook. Same handler signature.
+- `worker.js` — the actual entry point Cloudflare's Git-connected deploy
+  invokes (its "Create a Worker" flow, which unifies what used to be a
+  separate Pages product). It imports the two handlers above and routes
+  `/api/generate-report` and `/api/submit-lead` to them; everything else
+  falls through to `env.ASSETS.fetch(request)`, which serves `index.html`
+  and any other static file in the repo.
+- `wrangler.jsonc` — tells Cloudflare `main: worker.js` plus which directory
+  to serve as static assets (`./`, bound as `env.ASSETS`).
+- `.assetsignore` — excludes source/config files (`worker.js`,
+  `wrangler.jsonc`, `functions/`, `package.json`, etc.) from being served as
+  public static files alongside `index.html`.
 - `embed/host-listener-snippet.html` — the script that goes on the *host*
   page (GHL/WordPress/Webflow), not in this repo's deployed tool, to make the
   iframe auto-resize.
-- `_headers` — Cloudflare Pages' config file for custom response headers.
-  Sets `Content-Security-Policy: frame-ancestors` to allow embedding from
-  `monetize.lightspeedvt.com` (the confirmed landing-page domain) and other
-  `*.lightspeedvt.com` subdomains. Add more origins here if the tool ends up
-  embedded from WordPress/Webflow domains outside that.
+- `_headers` — config file for custom response headers, read by the assets
+  binding. Sets `Content-Security-Policy: frame-ancestors` to allow embedding
+  from `monetize.lightspeedvt.com` (the confirmed landing-page domain) and
+  other `*.lightspeedvt.com` subdomains. Add more origins here if the tool
+  ends up embedded from WordPress/Webflow domains outside that.
 
-Written for **Cloudflare Pages** (zero-config: static file + `functions/`
-folder both deploy automatically, no build step, no `wrangler.toml`
-needed). The two function files use Cloudflare's Pages Functions handler
-signature (`export async function onRequest(context)`, Web-standard
+Written for **Cloudflare's unified Workers deploy** (Git-connected, no
+build step). The two function files under `functions/api/` use Cloudflare's
+handler signature (`export async function onRequest(context)`,
 `Request`/`Response` objects, `context.env` for environment variables) —
 this is different from Vercel/Netlify/AWS Lambda's Node `(req, res)` style,
 so porting to those platforms would need the handler signature adapted
 (the actual logic — prompt building, Anthropic call, GHL forwarding — stays
 the same).
 
-## Deploying (Cloudflare Pages, via the dashboard)
+## Deploying (Cloudflare's "Create a Worker" Git-import flow)
 
-You don't need the `wrangler` CLI for this — the dashboard's Git integration
-does everything, including auto-redeploying on every future push.
+Cloudflare has unified what used to be a separate "Pages" product into
+"Workers." Creating a new application from a Git repo now goes through a
+**Workers & Pages → Create application → Connect to Git** flow with fields
+that map like this:
 
 1. Go to the [Cloudflare dashboard](https://dash.cloudflare.com/) and log in
    (the account's own email doesn't need to match anything else — GHL and
    Anthropic auth are independent of who owns the hosting account).
-2. In the left sidebar, go to **Workers & Pages** → **Create application** →
-   the **Pages** tab → **Connect to Git**.
-3. Authorize Cloudflare's GitHub App if prompted, then select the
-   `jayjacquemoud-pixel/ai-course-audit` repository.
-4. On the build settings screen:
-   - **Production branch**: `claude/new-session-ns2yhl` (or whichever branch
-     you want live — change this later in Settings if needed).
-   - **Framework preset**: None.
-   - **Build command**: leave blank (no build step).
-   - **Build output directory**: `/` (the repo root — `index.html` and
-     `functions/` live together, there's no separate `dist` folder).
-5. Before the first deploy, expand **Environment variables** and add:
-   - `ANTHROPIC_API_KEY` — your real Anthropic API key. Click the "Encrypt"
-     / secret toggle if offered, so it doesn't show in plaintext in the
-     dashboard afterward.
-   - `GHL_WEBHOOK_URL` = `https://services.leadconnectorhq.com/hooks/5IhdlYzc3DlT022CwekG/webhook-trigger/fe171456-8aaf-4647-804e-073d56b824be`
-     (also mark as secret if offered).
-   - (You can also add these after the first deploy, under **Settings** →
-     **Environment variables** — just remember to hit **Redeploy** afterward
-     for a new env var to take effect on an existing deployment.)
-6. Click **Save and Deploy**. Cloudflare builds and gives you a URL like
-   `https://ai-course-audit-xxx.pages.dev` — **that's the tool's own
-   address**, separate from the landing page. This is what goes in the
-   iframe `src` on the GHL landing page (see below).
-7. (Optional) **Custom domain**: in the Pages project → **Custom domains** →
-   add one (e.g. `tool.lightspeedvt.com`) if you'd rather not use the
-   `.pages.dev` URL long-term. Not required to get started.
+2. **Workers & Pages** → **Create application** → **Connect to Git** (or
+   paste the repo URL directly if it's public and no repo picker appears —
+   `https://github.com/jayjacquemoud-pixel/ai-course-audit`).
+3. **Select a repository**: `jayjacquemoud-pixel/ai-course-audit`.
+4. **Create and deploy** screen:
+   - **Project name**: leave as `ai-course-audit` (or whatever it defaults
+     to — cosmetic, becomes part of the default `.workers.dev` subdomain).
+   - **Builds for non-production branches**: fine to leave checked.
+   - **Advanced settings** (already expanded):
+     - **Non-production branch deploy command**: leave the default
+       (`npx wrangler versions upload`) — don't touch this.
+     - **Path**: `/` — leave as the default; matches this repo's root
+       (`index.html`, `worker.js`, `wrangler.jsonc` all live together, no
+       subdirectory).
+     - **API token**: leave on "Create new token" / "a new token will be
+       created automatically" — this is just how Cloudflare's own CI
+       authenticates to deploy, no action needed.
+   - **Variable name / Variable value**: this is where the two environment
+     variables go. Add one, then look for an "Add variable" control to add
+     the second (or add the second one afterward in the deployed project's
+     **Settings** → **Variables and Secrets**, then redeploy):
+     - Variable name `ANTHROPIC_API_KEY`, value = your real Anthropic API
+       key. Check **Encrypt**.
+     - Variable name `GHL_WEBHOOK_URL`, value =
+       `https://services.leadconnectorhq.com/hooks/5IhdlYzc3DlT022CwekG/webhook-trigger/fe171456-8aaf-4647-804e-073d56b824be`.
+       Check **Encrypt**.
+5. Click **Deploy**. Cloudflare builds and gives you a URL like
+   `https://ai-course-audit.<your-subdomain>.workers.dev` — **that's the
+   tool's own address**, separate from the landing page. This is what goes
+   in the iframe `src` on the GHL landing page (see below).
+6. Check that the project shows as Git-connected afterward (not a one-off
+   import) — that's what makes future pushes to this branch auto-redeploy.
+7. (Optional) **Custom domain**: add one later (e.g. `tool.lightspeedvt.com`)
+   under the project's custom domains settings if you'd rather not use the
+   `.workers.dev` URL long-term. Not required to get started.
 
 ## Embedding via iframe (GHL / WordPress / Webflow)
 
@@ -131,14 +152,19 @@ below):
 
 ```
 npm install --no-save wrangler
-npx wrangler pages dev .
+npx wrangler dev
 ```
 
-This serves `index.html` and runs the `functions/api/*.js` functions locally
-with the same routing as production, on `http://localhost:8788` by default.
-Create a `.dev.vars` file (gitignored — same `KEY=value` format as a
-standard `.env` file) with `ANTHROPIC_API_KEY` and `GHL_WEBHOOK_URL` for
-local testing; `wrangler` picks it up automatically.
+This runs `worker.js` locally with the same routing as production (reading
+config from `wrangler.jsonc`). Create a `.dev.vars` file (gitignored — same
+`KEY=value` format as a standard `.env` file) with `ANTHROPIC_API_KEY` and
+`GHL_WEBHOOK_URL` for local testing; `wrangler` picks it up automatically.
+
+(`npx wrangler pages dev .` also still works against the `functions/api/`
+handlers directly — useful for quickly testing those two files in isolation
+without going through `worker.js`'s routing — but the dashboard deploy flow
+above uses `worker.js` + `wrangler.jsonc`, so that's the source of truth for
+what actually runs in production.)
 
 ## Notes on the report-generation flow
 

@@ -1,0 +1,16 @@
+worker.js
+wrangler.jsonc
+functions/
+package.json
+package-lock.json
+README.md
+CLAUDE_CODE_HANDOFF.md
+embed/
+node_modules/
+.git/
+.wrangler/
+.dev.vars
+.env
+.env.local
+.gitignore
+.assetsignore
