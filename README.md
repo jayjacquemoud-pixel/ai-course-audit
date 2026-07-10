@@ -83,6 +83,25 @@ Test in an actual GHL/WordPress/Webflow iframe on its real domain, not just a
 local dev iframe — cross-origin `postMessage` behavior only shows up once the
 tool is served from a different origin than the page embedding it.
 
+## GHL webhook payload fields (for mapping custom fields)
+
+`api/submit-lead.js` forwards a flat JSON object to the GHL inbound webhook —
+every field is a top-level key (no nested objects), since GHL's inbound
+webhook trigger only auto-detects flat keys as individually mappable merge
+fields. Two POSTs happen per completed visitor, both to the same webhook, so
+map by `email` and use `stage` to tell them apart (see the "stage" field
+below):
+
+| Field | Sent on | Example | Notes |
+|---|---|---|---|
+| `name`, `email`, `phone` | both | `"Jane Doe"` | required; from the lead-gate form |
+| `stage` | both | `"started_audit"` or `"completed_audit"` | `started_audit` fires on lead-gate submit (before any questions); `completed_audit` fires again at the end with full scores. Map/branch on this if you want different automations for abandoned vs. completed. |
+| `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` | both | `"google"` | from the iframe's query string — blank if the host page didn't pass them through |
+| `submittedAt` | both | ISO timestamp | |
+| `company`, `industry`, `audience`, `goal`, `courseTitle` | `completed_audit` only | free text | from the quiz's profile/course sections |
+| `overallScore` | `completed_audit` only | `74` | 0–100 |
+| `score_courseStructure`, `score_contentQuality`, `score_learnerEngagement`, `score_knowledgeRetention`, `score_assessmentStrategy`, `score_aiReadiness`, `score_mobileLearning`, `score_reportingAnalytics`, `score_scalability` | `completed_audit` only | `58` | 0–100 each, one flat field per category — map each to its own custom field if you want per-category reporting in GHL |
+
 ## Local development
 
 ```

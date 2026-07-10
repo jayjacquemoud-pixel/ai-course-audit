@@ -718,8 +718,15 @@ async function generateReport(){
     .filter(([k])=>k!=='overallExperience')
     .sort((a,b)=>a[1]-b[1]);
 
-  const categoryScores = {};
-  Object.entries(cats).forEach(([k,v])=>{ categoryScores[k] = Math.round(v); });
+  // Sent as flat top-level fields (score_<category>) rather than a nested
+  // object — GHL's inbound webhook trigger only auto-detects flat keys as
+  // individually mappable merge fields, so a nested "categoryScores" object
+  // can't be mapped to per-category custom fields.
+  const flatScores = {};
+  Object.entries(cats).forEach(([k,v])=>{
+    if(k==='overallExperience') return; // already covered by overallScore
+    flatScores['score_'+k] = Math.round(v);
+  });
   submitLead({
     name: answers.leadName, email: answers.leadEmail, phone: answers.leadPhone,
     stage: 'completed_audit',
@@ -730,7 +737,7 @@ async function generateReport(){
     company: profile.company, industry: profile.industry, audience: profile.audience,
     goal: profile.goal, courseTitle: profile.courseTitle,
     overallScore: Math.round(overall),
-    categoryScores
+    ...flatScores
   });
 
   let aiResult = null;
