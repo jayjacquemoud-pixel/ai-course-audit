@@ -5,7 +5,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors *;"
+          "value": "frame-ancestors 'self' https://monetize.lightspeedvt.com https://*.lightspeedvt.com;"
         }
       ]
     }

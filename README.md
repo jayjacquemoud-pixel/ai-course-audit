@@ -16,9 +16,10 @@ front-end prototype.
 - `embed/host-listener-snippet.html` — the script that goes on the *host*
   page (GHL/WordPress/Webflow), not in this repo's deployed tool, to make the
   iframe auto-resize.
-- `vercel.json` — sets `Content-Security-Policy: frame-ancestors *` so the
-  tool can be embedded cross-domain (default hosting would otherwise be fine
-  too, but this makes it explicit).
+- `vercel.json` — sets `Content-Security-Policy: frame-ancestors` to allow
+  embedding from `monetize.lightspeedvt.com` (the confirmed landing-page
+  domain) and other `*.lightspeedvt.com` subdomains. Add more origins here if
+  the tool ends up embedded from WordPress/Webflow domains outside that.
 
 Written for Vercel (zero-config: static file + `/api` folder both deploy
 automatically), but `api/*.js` are plain `(req, res) => {}` Node handlers —
@@ -34,19 +35,24 @@ small wrapper, not a rewrite.
    | Variable | Required | Purpose |
    |---|---|---|
    | `ANTHROPIC_API_KEY` | Yes | Server-side key used by `api/generate-report.js`. Never expose this client-side. |
-   | `GHL_WEBHOOK_URL` | Yes (for lead capture to work) | The GHL inbound webhook URL for Location ID `5IhdlYzc3DlT022CwekG`. **Confirm the exact URL/auth with Keith** — not yet set. Until this is set, `api/submit-lead.js` logs the payload server-side and returns `{ok:false}` instead of failing the quiz. |
+   | `GHL_WEBHOOK_URL` | Yes (for lead capture to work) | The GHL inbound webhook URL for Location ID `5IhdlYzc3DlT022CwekG`. **Confirmed** — Jay provided the exact `services.leadconnectorhq.com/hooks/.../webhook-trigger/...` URL in the build chat; set it as this env var in the deployment platform's dashboard. Not committed to this repo since it functions like a bearer credential (anyone with the URL can write leads into the live GHL account). Until it's set, `api/submit-lead.js` logs the payload server-side and returns `{ok:false}` instead of failing the quiz. |
    | `GHL_API_KEY` | No | Only needed if GHL's REST API (Bearer token) is used instead of an inbound webhook. |
    | `GHL_LOCATION_ID` | No | Overrides the default `5IhdlYzc3DlT022CwekG` if needed. |
 
-3. Deploy. The tool is served at the project's root URL — that URL is what
-   goes in the iframe `src` on whichever platform hosts the final landing
-   page.
+3. Deploy. The tool is served at the project's root URL — **that Vercel/host
+   URL is the tool's own address, separate from the landing page below.** It
+   still needs to be decided/confirmed; once it is, that's what goes in the
+   iframe `src` on the landing page.
 
 ## Embedding via iframe (GHL / WordPress / Webflow)
 
 The quiz/report tool is not its own landing page — it's embedded via iframe
 lower on a page built natively in each platform's page builder (see
 `CLAUDE_CODE_HANDOFF.md` for why iframe was chosen over pasting raw code).
+The confirmed landing page for this launch is
+**`https://monetize.lightspeedvt.com/ai-course-audit-lp`** (a GHL funnel
+page) — that page gets the iframe + the listener snippet below; the tool
+itself still deploys to its own separate URL.
 
 Two things have to be done on the **host page**, not in this tool:
 
