@@ -1,2 +1,5 @@
 /*
-  Content-Security-Policy: frame-ancestors 'self' https://monetize.lightspeedvt.com https://*.lightspeedvt.com;
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: frame-ancestors https://monetize.lightspeedvt.com https://*.leadconnectorhq.com https://*.leadconnector.com https://sites.leadconnectorhq.com;
