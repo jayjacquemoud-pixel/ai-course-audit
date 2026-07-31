@@ -801,7 +801,9 @@ Tone: confident, concrete, never hypey. Never use "leverage," "utilize," "world-
   // call api.anthropic.com directly from the browser — there's no key here,
   // and exposing one client-side would leak it to every visitor.
   const controller = new AbortController();
-  const timeout = setTimeout(()=>controller.abort(), 20000);
+  // Give the browser more room than the server's own 25s cap, so a slow-but-
+  // successful generation isn't aborted here before the server can respond.
+  const timeout = setTimeout(()=>controller.abort(), 30000);
   let response;
   try{
     response = await fetch("/api/generate-report", {

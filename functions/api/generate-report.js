@@ -63,8 +63,19 @@ async function handlePost(context) {
       },
       body: JSON.stringify({
         model: ANTHROPIC_MODEL,
-        max_tokens: 1200,
-        messages: [{ role: 'user', content: prompt }]
+        // The report is 10 category entries + summary + 4-item roadmap +
+        // recommendation. At 1200 the model ran out of room mid-object and the
+        // truncated text failed JSON.parse ("AI response was not valid JSON").
+        // 4000 gives comfortable headroom for the full object.
+        max_tokens: 4000,
+        messages: [
+          { role: 'user', content: prompt },
+          // Prefill the assistant turn with an opening brace so the model
+          // continues as pure JSON — no markdown fences, no "Here's your
+          // report" preamble that would break JSON.parse. We add the "{" back
+          // when reassembling the response below.
+          { role: 'assistant', content: '{' }
+        ]
       }),
       signal: controller.signal
     });
@@ -81,12 +92,31 @@ async function handlePost(context) {
       return jsonResponse({ error: 'No text content in Anthropic response' }, 502);
     }
 
-    const cleaned = textBlock.text.replace(/```json|```/g, '').trim();
+    // We prefilled the assistant turn with "{", so the model's text is the
+    // continuation from there — put the brace back to reform the full object.
+    let raw = '{' + textBlock.text;
+
+    // Belt and suspenders: if the model still added markdown fences or any
+    // stray prose, strip the fences and keep only the outermost {...} so that
+    // extra text around the JSON can't break the parse.
+    raw = raw.replace(/```json|```/g, '').trim();
+    const firstBrace = raw.indexOf('{');
+    const lastBrace = raw.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace > firstBrace) {
+      raw = raw.slice(firstBrace, lastBrace + 1);
+    }
+
     let parsed;
     try {
-      parsed = JSON.parse(cleaned);
+      parsed = JSON.parse(raw);
     } catch (e) {
-      console.error('generate-report: failed to parse model output as JSON', cleaned);
+      // A stop_reason of 'max_tokens' means the output was cut off mid-JSON —
+      // the original failure mode. max_tokens is now 4000, but log stop_reason
+      // so any future truncation regression is obvious instead of silent.
+      console.error(
+        'generate-report: failed to parse model output as JSON.',
+        'stop_reason:', data.stop_reason, '| output:', raw
+      );
       return jsonResponse({ error: 'AI response was not valid JSON' }, 502);
     }
 
