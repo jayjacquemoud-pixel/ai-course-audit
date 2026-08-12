@@ -214,9 +214,10 @@ checking back:
   reintroduce unverified feature claims into either section.
 - The site-wide footer (copyright, Privacy/Disclaimer/AUP links, address, phone)
 - The two CTA links at the end of the report — "Book a 15-Minute Demo" points to
-  `instant.lightspeedvt.com/talk-to-us`, "Get My System" points to
-  `instant.lightspeedvt.com/get-my-system` — plus the pricing/self-serve footnote
-  beneath them.
+  `monetize.lightspeedvt.com/experts-bac`, "Get a Free 14-Day Trial" points to
+  `monetize.lightspeedvt.com/experts-trial` (updated from the original
+  `instant.lightspeedvt.com` URLs and "Get My System" label) — plus the
+  pricing/self-serve footnote beneath them.
 
 ## Nice-to-haves if there's room in scope
 - Save partial quiz progress (currently a hard refresh loses answers)
